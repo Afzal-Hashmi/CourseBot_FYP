@@ -12,7 +12,7 @@ const Sidebar = () => {
         Start Your Learning Journey
       </h1>
       <p>
-        Join Thousands of Students and Teachers <strong>Worldwide</strong>
+        Joins Thousands of Students and Teachers <strong>Worldwide</strong>
       </p>
     </div>
   );
