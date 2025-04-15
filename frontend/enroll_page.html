@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Enrollment - CourseBot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #2ecc71;
+            --light-bg: #f5f6fa;
+            --text-muted: #666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: var(--light-bg);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary-color);
+            padding: 2rem;
+            color: white;
+            position: fixed;
+            height: 100%;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .nav-links li {
+            margin: 1rem 0;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .nav-links a.active {
+            color: var(--accent-color);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            width: calc(100% - 250px);
+        }
+
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: opacity 0.3s;
+        }
+
+        .back-btn:hover {
+            opacity: 0.9;
+        }
+
+        .course-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .content-section h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .content-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .content-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            transition: background 0.3s;
+        }
+
+        .content-item:hover {
+            background: #f9f9f9;
+        }
+
+        .content-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .file-type {
+            width: 40px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .download-btn {
+            background: var(--accent-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .download-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Enrollment Card */
+        .enrollment-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .course-info {
+            margin: 1.5rem 0;
+            color: var(--text-muted);
+        }
+
+        .course-info p {
+            margin: 0.8rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .instructor-card {
+            background: var(--light-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .instructor-info {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .instructor-info img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 1rem;
+        }
+
+        .requirements {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: #fff8f8;
+            border-left: 4px solid var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        .requirements h4 {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .requirements ul {
+            padding-left: 1.5rem;
+        }
+
+        .requirements li {
+            margin: 0.5rem 0;
+        }
+
+        .enroll-btn-lg {
+            width: 100%;
+            background: var(--secondary-color);
+            color: white;
+            padding: 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 1.5rem;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .enroll-btn-lg:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .course-container {
+                grid-template-columns: 1fr;
+            }
+
+            .course-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-robot"></i>
+            CourseBot
+        </div>
+        <ul class="nav-links">
+            <li><a href="student_dashboard.html"><i class="fas fa-home"></i>Dashboard</a></li>
+            <li><a href="student_available_courses.html"><i class="fas fa-book-open"></i>Available Courses</a></li>
+            <li><a href="my_enrollments.html"><i class="fas fa-clipboard-list"></i>My Enrollments</a></li>
+            <li><a href="student_profile.html"><i class="fas fa-cog"></i>Settings</a></li>
+            <li><a href="login.html"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="course-header">
+            <h1>Professional Web Development</h1>
+            <button class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+        </div>
+
+        <div class="course-container">
+            <div class="course-details">
+                <div class="content-section">
+                    <h2><i class="fas fa-play-circle"></i> Video Lectures</h2>
+                    <ul class="content-list">
+                        <li class="content-item">
+                            <div class="file-info">
+                                <div class="file-type"><i class="fas fa-video fa-lg"></i></div>
+                                <div>
+                                    <div>HTML Crash Course</div>
+                                    <small>45:32 min • Uploaded: 15 Sept 2023</small>
+                                </div>
+                            </div>
+                            <span class="text-muted">MP4 (720p)</span>
+                        </li>
+                        <li class="content-item">
+                            <div class="file-info">
+                                <div class="file-type"><i class="fas fa-video fa-lg"></i></div>
+                                <div>
+                                    <div>CSS Layout Techniques</div>
+                                    <small>32:15 min • Uploaded: 18 Sept 2023</small>
+                                </div>
+                            </div>
+                            <span class="text-muted">MP4 (1080p)</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="content-section">
+                    <h2><i class="fas fa-file-alt"></i> Study Materials</h2>
+                    <ul class="content-list">
+                        <li class="content-item">
+                            <div class="file-info">
+                                <div class="file-type"><i class="fas fa-file-pdf fa-lg"></i></div>
+                                <div>
+                                    <div>HTML Cheat Sheet</div>
+                                    <small>PDF • 2.4 MB • Version 2.1</small>
+                                </div>
+                            </div>
+                            <button class="download-btn">Download</button>
+                        </li>
+                        <li class="content-item">
+                            <div class="file-info">
+                                <div class="file-type"><i class="fas fa-file-powerpoint fa-lg"></i></div>
+                                <div>
+                                    <div>CSS Frameworks Overview</div>
+                                    <small>PPTX • 5.1 MB • 28 Slides</small>
+                                </div>
+                            </div>
+                            <button class="download-btn">Download</button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="content-section">
+                    <h2><i class="fas fa-book-open"></i> Resources</h2>
+                    <ul class="content-list">
+                        <li class="content-item">
+                            <div class="file-info">
+                                <div class="file-type"><i class="fas fa-link fa-lg"></i></div>
+                                <div>
+                                    <div>Recommended Tools List</div>
+                                    <small>External Link • Last updated: 20 Sept 2023</small>
+                                </div>
+                            </div>
+                            <button class="download-btn">Open</button>
+                        </li>
+                        <li class="content-item">
+                            <div class="file-info">
+                                <div class="file-type"><i class="fas fa-code fa-lg"></i></div>
+                                <div>
+                                    <div>Starter Project Files</div>
+                                    <small>ZIP Archive • 15.2 MB</small>
+                                </div>
+                            </div>
+                            <button class="download-btn">Download</button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="requirements">
+                    <h4><i class="fas fa-exclamation-circle"></i> Requirements</h4>
+                    <ul>
+                        <li>Basic computer literacy</li>
+                        <li>Text editor (VS Code recommended)</li>
+                        <li>Modern web browser</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="enrollment-card">
+                <h2>Course Access</h2>
+                <div class="course-info">
+                    <p><i class="fas fa-database"></i> Total Content: 4.6 GB</p>
+                    <p><i class="fas fa-cloud-download-alt"></i> All materials downloadable</p>
+                    <p><i class="fas fa-history"></i> Lifetime access</p>
+                    <p><i class="fas fa-users"></i> 1,235 students enrolled</p>
+                </div>
+
+                <div class="instructor-card">
+                    <h4><i class="fas fa-chalkboard-teacher"></i> Instructor</h4>
+                    <div class="instructor-info">
+                        <img src="https://via.placeholder.com/50" alt="Instructor">
+                        <div>
+                            <p><strong>John Smith</strong></p>
+                            <p>Web Developer @TechCo</p>
+                            <small>john.smith@webdev.com</small>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="enroll-btn-lg" onclick="handleEnrollClick(event)">
+                    <i class="fas fa-lock-open"></i> Get Instant Access
+                </button>
+
+                <div class="notice" style="margin-top:1rem; font-size:0.9em; color:#666;">
+                    <i class="fas fa-info-circle"></i> Includes all future updates
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleEnrollClick(event) {
+            event.stopPropagation();
+            window.location.href = 'student_ai.html';
+        }
+    </script>
+</body>
+
+</html>

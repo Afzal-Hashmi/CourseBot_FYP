@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourseBot - Student Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #2ecc71;
+            --light-bg: #f5f6fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: var(--light-bg);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary-color);
+            padding: 2rem;
+            color: white;
+            position: fixed;
+            height: 100%;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .nav-links li {
+            margin: 1rem 0;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            width: calc(100% - 250px);
+        }
+
+        /* Profile Section */
+        .profile-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--secondary-color);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .profile-info {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-group {
+            margin-bottom: 1rem;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        .edit-btn {
+            background: var(--accent-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: opacity 0.3s;
+        }
+
+        .edit-btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-robot"></i>
+            CourseBot
+        </div>
+        <ul class="nav-links">
+            <li><a href="student_dashboard.html"><i class="fas fa-home"></i>Dashboard</a></li>
+            <li><a href="student_available_courses.html"><i class="fas fa-book-open"></i>Available Courses</a></li>
+            <li><a href="my_enrollments.html"><i class="fas fa-clipboard-list"></i>My Enrollments</a></li>
+            <li><a href="student_profile.html"><i class="fas fa-cog"></i>Settings</a></li>
+            <li><a href="login.html"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="profile-container">
+            <!-- Profile Card -->
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-picture">
+                        <img src="https://via.placeholder.com/150" alt="Profile Picture">
+                        <label class="upload-btn">
+                            <i class="fas fa-camera"></i>
+                            <input type="file" hidden>
+                        </label>
+                    </div>
+                    <h2>Hamid Doe</h2>
+                    <p>Computer Science Student</p>
+                </div>
+
+                <div class="profile-info">
+                    <div class="info-group">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">hamid.doe@example.com</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Student ID</div>
+                        <div class="info-value">STU-2023-4567</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Joined Date</div>
+                        <div class="info-value">15 January 2023</div>
+                    </div>
+                </div>
+
+                <button class="edit-btn">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </button>
+            </div>
+
+            <!-- Account Details -->
+            <div class="profile-card">
+                <h3>Account Settings</h3>
+                <div class="profile-info">
+                    <div class="info-group">
+                        <div class="info-label">Full Name</div>
+                        <div class="info-value">Hamid Doe</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Password</div>
+                        <div class="info-value">••••••••</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Phone Number</div>
+                        <div class="info-value">+1 (555) 123-4567</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Department</div>
+                        <div class="info-value">School of Computer Science</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

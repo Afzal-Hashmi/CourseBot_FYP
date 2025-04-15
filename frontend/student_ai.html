@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Portal | Student Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #2980b9;
+            --light-bg: #f8f9fa;
+            --text-dark: #2d3436;
+            --text-light: #636e72;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: var(--light-bg);
+            color: var(--text-dark);
+        }
+
+        /* ========== Enhanced Sidebar ========== */
+        .sidebar {
+            width: 300px;
+            background: var(--primary-color);
+            color: white;
+            padding: 2rem;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 5px 0 30px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .content-category {
+            margin-bottom: 2rem;
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.2rem;
+            margin: 0.8rem 0;
+            background: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255,255,255,0.12);
+            transform: translateX(10px);
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .pdf { background: #e74c3c; }
+        .video { background: #3498db; }
+        .zip { background: #9b59b6; }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-meta {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+            margin-top: 0.3rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* ========== Main Content ========== */
+        .main-content {
+            margin-left: 300px;
+            flex: 1;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* AI Search Bar */
+        .ai-search-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .ai-search {
+            width: 100%;
+            padding: 1.5rem 2rem 1.5rem 5rem;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            background: white;
+            box-shadow: 0 10px 30px rgba(52,152,219,0.15);
+            transition: all 0.3s ease;
+        }
+
+        .ai-search:focus {
+            outline: none;
+            box-shadow: 0 10px 40px rgba(52,152,219,0.2);
+        }
+
+        .ai-search-icon {
+            position: absolute;
+            left: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+            font-size: 1.8rem;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .content-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 35px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .card-meta {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        /* Content Cards Styling */
+.content-card {
+    background: white;
+    padding: 1.5rem;
+    border-left: 4px solid var(--secondary-color);
+}
+
+.card-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.card-header h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.card-meta {
+    font-size: 0.85rem;
+    gap: 1rem;
+    color: var(--text-light);
+}
+
+/* Color Consistency */
+.pdf { background: #e74c3c; }
+.video { background: #3498db; }
+.zip { background: #9b59b6; }
+
+.content-card .card-icon {
+    color: white;
+}
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                box-shadow: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 2rem 1.5rem;
+            }
+            
+            .ai-search {
+                padding-left: 4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== Sidebar ========== -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h2><i class="fas fa-graduation-cap"></i> Content</h2>
+    </div>
+    
+    <div class="sidebar-content">
+        <!-- All items mixed together -->
+        <div class="sidebar-item">
+            <div class="file-icon video">
+                <i class="fas fa-video"></i>
+            </div>
+            <div class="file-info">
+                <h4>Optional Class Deep Dive</h4>
+                <div class="file-meta">
+                    <span>45 min</span>
+                    <span>HD</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-item">
+            <div class="file-icon pdf">
+                <i class="fas fa-file-pdf"></i>
+            </div>
+            <div class="file-info">
+                <h4>Java Optional Guide</h4>
+                <div class="file-meta">
+                    <span>2.4 MB</span>
+                    <span>PDF</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-item">
+            <div class="file-icon zip">
+                <i class="fas fa-file-archive"></i>
+            </div>
+            <div class="file-info">
+                <h4>Project Starter Files</h4>
+                <div class="file-meta">
+                    <span>15.2 MB</span>
+                    <span>ZIP</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-item">
+            <div class="file-icon pdf">
+                <i class="fas fa-file-pdf"></i>
+            </div>
+            <div class="file-info">
+                <h4>Web Development Basics</h4>
+                <div class="file-meta">
+                    <span>3.1 MB</span>
+                    <span>PDF</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-item">
+            <div class="file-icon video">
+                <i class="fas fa-video"></i>
+            </div>
+            <div class="file-info">
+                <h4>Advanced CSS Techniques</h4>
+                <div class="file-meta">
+                    <span>32 min</span>
+                    <span>HD</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-item">
+            <div class="file-icon zip">
+                <i class="fas fa-file-archive"></i>
+            </div>
+            <div class="file-info">
+                <h4>Python Exercises</h4>
+                <div class="file-meta">
+                    <span>8.7 MB</span>
+                    <span>ZIP</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- ========== Main Content ========== -->
+<div class="main-content">
+    <div class="ai-search-container">
+        <i class="fas fa-robot ai-search-icon"></i>
+        <input type="text" class="ai-search" placeholder="Ask me anything about your course...">
+    </div>
+
+    <div class="content-grid">
+        <!-- Featured Content Cards -->
+        <div class="content-card">
+            <div class="card-icon pdf">
+                <i class="fas fa-file-pdf"></i>
+            </div>
+            <div class="card-header">
+                <h3>Java Optional Guide</h3>
+                <div class="card-meta">
+                    <span><i class="fas fa-file-pdf"></i> PDF</span>
+                    <span>2.4 MB</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="card-icon video">
+                <i class="fas fa-video"></i>
+            </div>
+            <div class="card-header">
+                <h3>Optional Class Deep Dive</h3>
+                <div class="card-meta">
+                    <span><i class="fas fa-clock"></i> 45 min</span>
+                    <span>HD Video</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="card-icon zip">
+                <i class="fas fa-file-archive"></i>
+            </div>
+            <div class="card-header">
+                <h3>Project Starter Files</h3>
+                <div class="card-meta">
+                    <span><i class="fas fa-database"></i> 15.2 MB</span>
+                    <span>ZIP Archive</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

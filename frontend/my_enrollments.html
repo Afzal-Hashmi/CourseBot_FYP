@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourseBot - My Enrollments</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #2ecc71;
+            --light-bg: #f5f6fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: var(--light-bg);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary-color);
+            padding: 2rem;
+            color: white;
+            position: fixed;
+            height: 100%;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .nav-links li {
+            margin: 1rem 0;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            width: calc(100% - 250px);
+        }
+
+        .header {
+            margin-bottom: 2rem;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--secondary-color);
+            border-radius: 30px;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            background: white;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        /* Enrolled Courses Grid */
+        .enrolled-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Enrollment Card */
+        .enrollment-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-meta {
+            margin: 1rem 0;
+            color: #666;
+        }
+
+        .course-actions {
+            margin-top: 1.5rem;
+        }
+
+        .open-course-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: opacity 0.3s;
+        }
+
+        .open-course-btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-robot"></i>
+            CourseBot
+        </div>
+        <ul class="nav-links">
+            <li><a href="student_dashboard.html"><i class="fas fa-home"></i>Dashboard</a></li>
+            <li><a href="student_available_courses.html"><i class="fas fa-book-open"></i>Available Courses</a></li>
+            <li><a href="my_enrollments.html"><i class="fas fa-clipboard-list"></i>My Enrollments</a></li>
+            <li><a href="student_profile.html"><i class="fas fa-cog"></i>Settings</a></li>
+            <li><a href="login.html"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1>My Enrollments</h1>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" class="search-input" placeholder="Search enrolled courses...">
+            </div>
+        </div>
+
+        <div class="enrolled-grid">
+            <!-- Web Development Enrollment -->
+            <div class="enrollment-card">
+                <h3>Introduction to Web Development</h3>
+                <div class="course-meta">
+                    <p><i class="fas fa-user-tie"></i> Prof. Afzal</p>
+                    <p>Enrollment Date: 01 Sep 2023</p>
+                </div>
+                <div class="course-actions">
+                    <button class="open-course-btn" onclick="handleEnrollClick(event)">
+                        <i class="fas fa-plus"></i> Open Course
+                    </button>
+                </div>
+            </div>
+
+            <!-- Python Enrollment -->
+            <div class="enrollment-card">
+                <h3>Python Programming Basics</h3>
+                <div class="course-meta">
+                    <p><i class="fas fa-user-tie"></i> Dr. Yousaf</p>
+                    <p>Enrollment Date: 15 Aug 2023</p>
+                </div>
+                <div class="course-actions">
+                    <button class="open-course-btn" onclick="handleEnrollClick(event)">
+                        <i class="fas fa-plus"></i> Open Course
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Development Enrollment -->
+            <div class="enrollment-card">
+                <h3>Mobile App Development</h3>
+                <div class="course-meta">
+                    <p><i class="fas fa-user-tie"></i> Prof. Hamid</p>
+                    <p>Enrollment Date: 20 Aug 2023</p>
+                </div>
+                <div class="course-actions">
+                    <!-- <button class="open-course-btn">
+                        <i class="fas fa-door-open"></i> Open Course
+                    </button> -->
+                    <button class="open-course-btn" onclick="handleEnrollClick(event)">
+                        <i class="fas fa-plus"></i> Open Course
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleCardClick(event) {
+            // Prevent navigation if clicking the enroll button
+            if (!event.target.closest('.open-course-btn')) {
+                window.location.href = 'enroll_page.html';
+            }
+        }
+
+        function handleEnrollClick(event) {
+            event.stopPropagation();
+            window.location.href = 'enroll_page.html';
+        }
+    </script>
+</body>
+
+</html>

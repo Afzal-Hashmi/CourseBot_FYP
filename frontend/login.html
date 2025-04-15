@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourseBot - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --light-bg: #f5f6fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: var(--light-bg);
+        }
+
+        .sidebar {
+            width: 40%;
+            background: var(--primary-color);
+            padding: 2rem;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            width: 60%;
+            padding: 4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            color: var(--secondary-color);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .role-selector {
+            margin: 2rem 0;
+        }
+
+        .role-btn {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: none;
+            border: 2px solid white;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1.1rem;
+        }
+
+        .role-btn.active {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .signin-form {
+            max-width: 400px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .login-btn {
+            background: var(--secondary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .nav-links {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .nav-links a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            margin: 0 1rem;
+            font-weight: 500;
+        }
+
+        /* Update role selector buttons */
+        .role-btn {
+            transition: all 0.3s ease;
+        }
+
+        .role-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .social-icons {
+            margin-top: 3rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .social-icons a {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar,
+            .main-content {
+                width: 100%;
+                padding: 2rem;
+            }
+
+            .logo {
+                margin-bottom: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-robot"></i>
+            CourseBot
+        </div>
+        <h1>Customize Your Learning Experience</h1>
+        <p>Making Education Better <strong>Inside and Out</strong></p>
+
+        <div class="role-selector">
+            <button class="role-btn active">
+                <i class="fas fa-user-graduate"></i> STUDENT
+            </button>
+            <button class="role-btn">
+                <i class="fas fa-chalkboard-teacher"></i> TEACHER
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="signin-form">
+            <h2>Sign In</h2>
+            <form>
+
+                <div class="form-group">
+                    <input type="text" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" placeholder="Password" required>
+                </div>
+
+                <div class="form-options">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="remember">
+                        <label for="remember">Remember username</label>
+                    </div>
+                    <a href="#" style="color: var(--secondary-color); text-decoration: none;">
+                        Forgot Password?
+                    </a>
+                </div>
+
+                <button type="button" class="login-btn" onclick="redirectToDashboard()">Log In</button>
+                <div class="nav-links">
+                    Don't have an account? <a href="signup.html">Sign Up</a>
+                    <!-- Add more links here in future -->
+                </div>
+            </form>
+
+            <div class="social-icons">
+                <span>Follow Us:</span>
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        function redirectToDashboard() {
+            // Get selected role
+            const activeRole = document.querySelector('.role-btn.active').textContent.toLowerCase().trim();
+
+            // Redirect based on role
+            if (activeRole === 'teacher') {
+                window.location.href = 'teacher_dashboard.html';
+            } else {
+                window.location.href = 'student_dashboard.html';
+            }
+        }
+        // Role selection functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            // Handle role buttons
+            const roleButtons = document.querySelectorAll('.role-btn');
+            roleButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    roleButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                });
+            });
+
+            // Password toggle functionality
+            document.querySelectorAll('.toggle-icon').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const input = icon.previousElementSibling;
+                    input.type = input.type === 'password' ? 'text' : 'password';
+                    icon.classList.toggle('fa-eye-slash');
+                });
+            });
+        });
+        // Update hidden input when role changes
+        document.querySelectorAll('.role-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const role = button.textContent.toLowerCase().trim();
+                document.getElementById('userRole').value = role;
+            });
+        });
+
+        // Form submission handling
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const role = document.getElementById('userRole').value;
+            // Add your login logic here based on role
+            if (role === 'teacher') {
+                window.location.href = 'teacher-dashboard.html';
+            } else {
+                window.location.href = 'student-dashboard.html';
+            }
+        });
+    </script>
+
+
+
+
+</body>
+
+</html>

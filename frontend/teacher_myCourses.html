@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourseBot - My Courses</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --light-bg: #f5f6fa;
+            --success-color: #2ecc71;
+            --warning-color: #e67e22;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: var(--light-bg);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--primary-color);
+            padding: 2rem;
+            color: white;
+            position: fixed;
+            height: 100%;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin: 1.5rem 0;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            width: calc(100% - 250px);
+        }
+
+        .courses-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .create-course-btn {
+            background: var(--secondary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-select {
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .courses-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: var(--light-bg);
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+
+        .published {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .draft {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+
+        .edit-btn {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .courses-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-controls {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .create-course-btn,
+            .filter-select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-robot"></i>
+            CourseBot
+        </div>
+        <ul class="nav-links">
+            <li><a href="teacher_dashboard.html"><i class="fas fa-home"></i>Dashboard</a></li>
+            <li><a href="teacher_myCourses.html"><i class="fas fa-book-open"></i>My Courses</a></li>
+            <li><a href="students_management.html"><i class="fas fa-users"></i>Students</a></li>
+            <li><a href="teacher_profile.html"><i class="fas fa-cog"></i>Settings</a></li>
+            <li><a href="login.html"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="courses-header">
+            <h1>My Courses</h1>
+            <div class="header-controls">
+                <button class="create-course-btn">
+                    <i class="fas fa-plus"></i> New Course
+                </button>
+                <select class="filter-select">
+                    <option>All Courses</option>
+                    <option>Published</option>
+                    <option>Drafts</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="courses-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Course Name</th>
+                        <th>Status</th>
+                        <th>Students</th>
+                        <th>Rating</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Web Development Fundamentals</td>
+                        <td><span class="status-badge published">Published</span></td>
+                        <td>45</td>
+                        <td>4.8 <i class="fas fa-star"></i> (28)</td>
+                        <td>2 days ago</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn edit-btn">Edit</button>
+                                <button class="action-btn delete-btn">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Python Programming Basics</td>
+                        <td><span class="status-badge draft">Draft</span></td>
+                        <td>0</td>
+                        <td>-</td>
+                        <td>1 week ago</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn edit-btn">Edit</button>
+                                <button class="action-btn delete-btn">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Mobile App Development</td>
+                        <td><span class="status-badge published">Published</span></td>
+                        <td>28</td>
+                        <td>4.5 <i class="fas fa-star"></i> (15)</td>
+                        <td>3 days ago</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn edit-btn">Edit</button>
+                                <button class="action-btn delete-btn">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Data Science Fundamentals</td>
+                        <td><span class="status-badge published">Published</span></td>
+                        <td>62</td>
+                        <td>4.7 <i class="fas fa-star"></i> (34)</td>
+                        <td>5 days ago</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn edit-btn">Edit</button>
+                                <button class="action-btn delete-btn">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
