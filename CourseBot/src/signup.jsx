@@ -10,7 +10,7 @@ import {
 import { Link } from "react-router-dom"; // Import Link from React Router
 import "./index.css"; // TailwindCSS is assumed to be set up
 
-export default function Login() {
+export default function SignUpPage() {
   const [role, setRole] = useState("student");
 
   const handleLogin = () => {
@@ -24,7 +24,7 @@ export default function Login() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <div className="md:w-2/5 bg-[#2c3e50] text-white p-8 flex flex-col">
+      <div className="md:w-2/5 bg-gray-800 text-white p-8 flex flex-col">
         <div className="text-2xl flex items-center gap-2 mb-12">
           <FaRobot className="text-blue-400" /> CourseBot
         </div>
@@ -39,7 +39,7 @@ export default function Login() {
           <button
             className={`flex items-center gap-2 w-full p-4 border-2 rounded mb-2 transition-all ${
               role === "student"
-                ? "bg-[#3498db] border-blue-500"
+                ? "bg-blue-500 border-blue-500"
                 : "border-white"
             } text-white`}
             onClick={() => setRole("student")}
@@ -49,7 +49,7 @@ export default function Login() {
           <button
             className={`flex items-center gap-2 w-full p-4 border-2 rounded transition-all ${
               role === "teacher"
-                ? "bg-[#3498db] border-blue-500"
+                ? "bg-blue-500 border-blue-500"
                 : "border-white"
             } text-white`}
             onClick={() => setRole("teacher")}
@@ -62,7 +62,7 @@ export default function Login() {
       {/* Main Content */}
       <div className="md:w-3/5 p-8 flex flex-col justify-center">
         <div className="max-w-md mx-auto w-full">
-          <h2 className="text-3xl font-semibold mb-6">Sign In</h2>
+          <h2 className="text-3xl font-semibold mb-6">Sign UP</h2>
           <form className="space-y-6">
             <input
               type="text"
@@ -90,14 +90,14 @@ export default function Login() {
             <button
               type="button"
               onClick={handleLogin}
-              className="w-full bg-[#3498db] text-white py-3 rounded font-semibold"
+              className="w-full bg-blue-500 text-white py-3 rounded font-semibold"
             >
               Log In
             </button>
 
             <div className="text-center mt-4">
               Don't have an account?{" "}
-              <Link to="/signup" className="text-[#3498db] font-bold">
+              <Link to="/signup" className="text-blue-500 font-medium">
                 Sign Up
               </Link>
             </div>
