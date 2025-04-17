@@ -3,10 +3,10 @@ from fastapi.responses import JSONResponse
 
 
 # make router with file name
-user_router = APIRouter()
+student_router = APIRouter()
 
 
-@user_router.post("/user_data")
+@student_router.post("/student_data")
 async def vendorScores():
 
     data = {
@@ -15,4 +15,4 @@ async def vendorScores():
         'contact': '123455567'
     }
 
-    return JSONResponse(content={"success": True, "message": "User fetched Successful", "status": 200, "data": data})
+    return JSONResponse(content={"success": True, "message": "Student fetched Successful", "status": 200, "data": data})
