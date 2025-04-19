@@ -33,7 +33,7 @@ tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
 # Format for async SQLAlchemy URL
 DATABASE_URL = (
     f"postgresql+asyncpg://{tmpPostgres.username}:{tmpPostgres.password}"
-    f"@{tmpPostgres.hostname}{tmpPostgres.path}?ssl=require"
+    f"@{tmpPostgres.hostname}{tmpPostgres.path}"
 )
 
 # Create an asynchronous SQLAlchemy engine

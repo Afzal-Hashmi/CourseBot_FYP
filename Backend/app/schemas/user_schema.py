@@ -12,7 +12,7 @@ class UserCreate(BaseModel):
     salt: str|None=None
     roleId: Role|None=None
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class Userschema(BaseModel):
     id: int
