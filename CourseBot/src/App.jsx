@@ -1,8 +1,9 @@
 import { useState } from "react";
 import Login from "./login";
-import SignUpPage from "./pages/signup";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
+import StudentSignUpPage from "./student_signup";
+import TeacherSignUp from "./teacher_signup";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -13,7 +14,8 @@ function App() {
         <Routes>
           {/* <Route path="/" element={<HomePage />} /> */}
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/student_signup" element={<StudentSignUpPage />} />
+          <Route path="/teacher_signup" element={<TeacherSignUp />} />
           {/* <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} /> */}
         </Routes>
