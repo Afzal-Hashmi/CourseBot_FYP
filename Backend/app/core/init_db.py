@@ -1,6 +1,6 @@
-from app.db.base import Base
+from app.repo.db.base import Base
 from app.core.connection import engine  # your async engine
-from app.models import *  # Automatically brings in all models
+from app.repo.db.models import *  # Automatically brings in all models
 
 
 # Ensure you're using the correct async engine for async operations

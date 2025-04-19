@@ -97,7 +97,7 @@ export default function Login() {
 
             <div className="text-center mt-4">
               Don't have an account?{" "}
-              <Link to="/signup" className="text-[#3498db] font-bold">
+              <Link to="/student_signup" className="text-[#3498db] font-bold">
                 Sign Up
               </Link>
             </div>
