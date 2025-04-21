@@ -4,13 +4,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 import asyncio
-from app.core.init_db import create_tables
+from app.config.init_db import createTables
 
-from app.core.connection import get_db
+from app.config.connection import get_db
 
 import uvicorn
 
-from app.api.router.api_router import api_router
+from app.api.router.apiRouter import apiRouter
 
 app = FastAPI()
 
@@ -26,9 +26,9 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def on_startup():
-    await create_tables()
+    await createTables()
 
-app.include_router(api_router)
+app.include_router(apiRouter)
 
 @app.get("/")
 def index():
@@ -37,4 +37,4 @@ def index():
 
 if __name__ == "__main__":
     # Then start the server
-    uvicorn.run("app.main:app", host="127.0.0.1", port=9090, reload=True)
+    uvicorn.run(app, host="127.0.0.1", port=9090)

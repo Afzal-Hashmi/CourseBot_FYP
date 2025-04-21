@@ -1,25 +1,31 @@
 # use pydantic schemas for validation and serialization
-from pydantic import BaseModel,EmailStr
-from app.schemas.role_schema import Role
+from pydantic import BaseModel,EmailStr, Field
+from app.schemas.roleSchema import Role
 
 class UserCreate(BaseModel):
     firstName: str
     lastName: str
     email: EmailStr
-    password: str
-    secret: str|None=None
+    password: str = Field(min_length=8, max_length=50)
     hashPassword: str|None=None
     salt: str|None=None
     roleId: Role|None=None
     class Config:
         from_attributes = True
 
-class Userschema(BaseModel):
+class UserSchema(BaseModel):
     id: int
     firstName: str
     lastName: str
     email: EmailStr
-    role: Role
+    roles: Role
 
     class Config:
         orm_mode = True
+
+
+class UserLoginSchema(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=50)
+
+    

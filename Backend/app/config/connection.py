@@ -21,6 +21,7 @@
 import os
 from typing import AsyncGenerator
 from dotenv import load_dotenv
+from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from urllib.parse import urlparse
@@ -45,6 +46,11 @@ AsyncSessionLocal = sessionmaker(
     class_=AsyncSession,
     expire_on_commit=False
 )
+
+def get_db_connection():
+    Engine = create_engine(os.getenv("DATABASE_URL"))
+    Session = sessionmaker(bind=Engine)
+    return Session
 
 # Dependency function to get a DB session in routes
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

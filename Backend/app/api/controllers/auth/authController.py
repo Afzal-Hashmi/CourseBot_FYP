@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.api.services.user_services import create_user
-from app.schemas.user_schema import UserCreate
+from app.services.userServices import createUser, loginUser
+from app.schemas.userSchema import UserCreate, UserLoginSchema
 
-async def signup_user(user_Data:UserCreate,db:AsyncSession, role_type:str):
+async def signupUser(userData:UserCreate,db:AsyncSession, roleType:str):
     """
     Signs up a new user in the database.
 
@@ -14,4 +14,8 @@ async def signup_user(user_Data:UserCreate,db:AsyncSession, role_type:str):
     Returns:
         JSONResponse: A JSON response with a success status and a message indicating whether the user was created successfully or not.
     """
-    return await create_user(user_Data,db=db, role_type=role_type)
+    return createUser(userData,db=db, role_type=roleType)
+
+
+async def loginUserController(userData: UserLoginSchema):
+    return await loginUser(userData)
