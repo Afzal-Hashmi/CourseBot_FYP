@@ -3,7 +3,6 @@
 # # from app.core.config import settings
 
 
-
 # # def get_db_connection():
 # #     """Establishes and returns a connection to the PostgreSQL database."""
 # #     conn = psycopg2.connect(
@@ -15,7 +14,6 @@
 
 # #     )
 # #     return conn
-
 
 
 import os
@@ -42,15 +40,15 @@ engine = create_async_engine(DATABASE_URL, echo=True)
 
 # Create a sessionmaker factory for async sessions
 AsyncSessionLocal = sessionmaker(
-    bind=engine,
-    class_=AsyncSession,
-    expire_on_commit=False
+    bind=engine, class_=AsyncSession, expire_on_commit=False
 )
+
 
 def get_db_connection():
     Engine = create_engine(os.getenv("DATABASE_URL"))
     Session = sessionmaker(bind=Engine)
     return Session
+
 
 # Dependency function to get a DB session in routes
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
