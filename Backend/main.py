@@ -1,13 +1,21 @@
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Depends
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
+import asyncio
+from app.config.init_db import createTables
+
+from app.config.connection import get_db
+
 import uvicorn
 
-from app.api.router import api_router
+from app.api.router.apiRouter import apiRouter
 
 app = FastAPI()
 
-origins = ["*"]
+origins = [  "http://localhost:5173",
+    "http://127.0.0.1:5173",]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -16,15 +24,17 @@ app.add_middleware(
     allow_headers=["*"]
     )
 
-app.include_router(api_router, prefix="/api")
+@app.on_event("startup")
+async def on_startup():
+    await createTables()
 
-@app.get("/", response_class=HTMLResponse)
+app.include_router(apiRouter)
+
+@app.get("/")
 def index():
-    message = "Starter Template for FastAPI"
-    html_content = f"<html><body><h1>{message}</h1></body></html>"
-    return HTMLResponse(content=html_content)
-
+    return RedirectResponse(url= "http://localhost:5173/login", status_code=302)
 
 
 if __name__ == "__main__":
+    # Then start the server
     uvicorn.run(app, host="127.0.0.1", port=9090)

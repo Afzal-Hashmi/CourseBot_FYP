@@ -7,10 +7,8 @@ import {
   FaTwitter,
   FaLinkedin,
 } from "react-icons/fa";
-import { Link } from "react-router-dom"; // Import Link from React Router
-import "./index.css"; // TailwindCSS is assumed to be set up
 
-export default function SignUpPage() {
+export default function Login() {
   const [role, setRole] = useState("student");
 
   const handleLogin = () => {
@@ -62,7 +60,7 @@ export default function SignUpPage() {
       {/* Main Content */}
       <div className="md:w-3/5 p-8 flex flex-col justify-center">
         <div className="max-w-md mx-auto w-full">
-          <h2 className="text-3xl font-semibold mb-6">Sign UP</h2>
+          <h2 className="text-3xl font-semibold text-black mb-6">Sign In</h2>
           <form className="space-y-6">
             <input
               type="text"
@@ -97,9 +95,9 @@ export default function SignUpPage() {
 
             <div className="text-center mt-4">
               Don't have an account?{" "}
-              <Link to="/signup" className="text-blue-500 font-medium">
+              <a href="/signup" className="text-blue-500 font-medium">
                 Sign Up
-              </Link>
+              </a>
             </div>
           </form>
 
