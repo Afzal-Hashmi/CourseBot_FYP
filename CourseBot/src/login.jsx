@@ -8,7 +8,7 @@ import {
   FaLinkedin,
 } from "react-icons/fa";
 import { Link } from "react-router-dom"; // Import Link from React Router
-import "./index.css"; // TailwindCSS is assumed to be set up
+import "./index.css"; // TailwindCSS is assumed to be set up aaaaaaaaaa
 
 export default function Login() {
   const [role, setRole] = useState("student");
