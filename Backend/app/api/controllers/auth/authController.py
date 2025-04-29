@@ -9,3 +9,4 @@ async def signupUser(userData: UserCreate, db: AsyncSession, roleType: str):
 
 async def loginUserController(userData: UserLoginSchema):
     return await loginUser(userData)
+
