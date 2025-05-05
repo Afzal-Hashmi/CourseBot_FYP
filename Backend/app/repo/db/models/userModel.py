@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from app.repo.db.base import Base
 
@@ -12,13 +12,9 @@ class User(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     hashPassword = Column(String, nullable=False)
     salt = Column(String, nullable=False)
+    roleId = Column(Integer, ForeignKey("roles.role_id"))
+
     roles = relationship("Role", back_populates="users")
-    roleId = Column(Integer, ForeignKey("roles.id"))
-
-
-class Role(Base):
-    __tablename__ = "roles"
-
-    id = Column(Integer, primary_key=True)
-    role = Column(String, nullable=False)
-    users = relationship("User", back_populates="roles")
+    courses = relationship("Course", back_populates="teacher", cascade='all,delete-orphan')
+    enrollments = relationship("Enrollment", back_populates="student", cascade='all,delete-orphan')
+    feedback = relationship("CourseFeedback", back_populates="student")

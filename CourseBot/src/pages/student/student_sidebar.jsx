@@ -12,9 +12,9 @@ import {
 const StudentSidebar = () => {
   return (
     <div className="w-70 bg-[#2c3e50] text-white p-8 fixed h-full">
-      <div className="flex items-center gap-2 text-2xl mb-12">
-        <FaRobot />
-        CourseBot
+      <div className="flex items-center gap-2 text-xl font-bold mb-12">
+        <FaRobot className="text-blue-500" />
+        <span>CourseBot</span>
       </div>
       <ul className="mt-8 space-y-4">
         <li>

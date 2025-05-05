@@ -10,16 +10,16 @@ authRouter = APIRouter()
 
 @authRouter.post("/student-signup", response_model=UserSchema)
 async def studentSignupRoute(
-    userData: UserCreate, db: AsyncSession = Depends(get_db), roleType: str = "student"
+        userData: UserCreate, roleType: str = "student"
 ):
-    return await signupUser(userData, db=db, roleType=roleType)
+    return await signupUser(userData, roleType=roleType)
 
 
 @authRouter.post("/teacher-signup", response_model=UserSchema)
 async def teacherSignupRoute(
-    userData: UserCreate, db: AsyncSession = Depends(get_db), roleType: str = "teacher"
+        userData: UserCreate, roleType: str = "teacher"
 ):
-    return await signupUser(userData, db=db, roleType=roleType)
+    return await signupUser(userData, roleType=roleType)
 
 
 @authRouter.post("/login")

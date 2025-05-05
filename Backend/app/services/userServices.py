@@ -13,8 +13,8 @@ from app.utils.generateHash import generateHash, verifyHash
 from app.schemas.userSchema import UserCreate, UserLoginSchema
 
 # Repo
-from app.repo.userRepo import getRoleId
-from app.repo.userRepo import createUserRepo, getUserByEmail
+from app.repo.userRepo import UserRepository
+# from app.repo.userRepo import createUserRepo, getUserByEmail
 
 # OS
 import os
@@ -24,13 +24,13 @@ from dotenv import load_dotenv
 
 from jose import jwt, JWTError
 
-
 load_dotenv()
 
 
-async def createUser(userData: UserCreate, db: AsyncSession, role: str):
+async def createUser(userData: UserCreate, role: str):
+    user_repo = UserRepository()
     try:
-        roleId = await getRoleId(role, db)
+        roleId = await user_repo.get_role_id(role)
 
         if not roleId:
             raise HTTPException(status_code=400, detail="Role not found")
@@ -39,7 +39,7 @@ async def createUser(userData: UserCreate, db: AsyncSession, role: str):
         userData.hashPassword, userData.salt = generateHash(userData.password)
 
         # Create the user in the database
-        if await createUserRepo(userData, db=db):
+        if await user_repo.create_user(userData):
             return JSONResponse(
                 status_code=200,
                 content={"success": True, "message": "User created successfully"},
@@ -63,7 +63,8 @@ async def createUser(userData: UserCreate, db: AsyncSession, role: str):
 
 
 async def loginUser(userData: UserLoginSchema):
-    user = await getUserByEmail(userData.email)
+    user_repo = UserRepository()
+    user = await user_repo.get_user_by_email(userData.email)
 
     if not user:
         raise HTTPException(status_code=404, detail="User does not exist")
