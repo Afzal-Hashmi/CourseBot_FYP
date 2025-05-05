@@ -1,6 +1,5 @@
 from fastapi import APIRouter
 
-
 from app.api.router.authRouter import authRouter
 
 # from app.api.controllers.user.student import student_controller

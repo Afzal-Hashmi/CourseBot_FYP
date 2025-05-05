@@ -8,6 +8,7 @@ import {
   FaSignOutAlt,
   FaSearch,
 } from "react-icons/fa";
+import TeacherSidebar from "./teacher_sidebar";
 
 const StudentsManagement = () => {
   const students = [
@@ -47,60 +48,7 @@ const StudentsManagement = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-70 bg-[#2c3e50] text-white fixed h-full p-8">
-        <div className="flex items-center gap-2 text-xl font-bold mb-12">
-          <FaRobot className="text-blue-500" />
-          <span>CourseBot</span>
-        </div>
-        <ul className="space-y-4">
-          <li>
-            <a
-              href="/teacher-dashboard"
-              className="flex items-center gap-3 text-lg hover:text-blue-400"
-            >
-              <FaHome />
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="/teacher-myCourses"
-              className="flex items-center gap-3 text-lg hover:text-blue-400"
-            >
-              <FaBookOpen />
-              <span>My Courses</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="/students-management"
-              className="flex items-center gap-3 text-lg hover:text-blue-400"
-            >
-              <FaUsers />
-              <span>Students</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="/teacher-profile"
-              className="flex items-center gap-3 text-lg hover:text-blue-400"
-            >
-              <FaCog />
-              <span>Profile</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="/login"
-              className="flex items-center gap-3 text-lg hover:text-blue-400"
-            >
-              <FaSignOutAlt />
-              <span>Logout</span>
-            </a>
-          </li>
-        </ul>
-      </div>
+      <TeacherSidebar />
 
       {/* Main Content */}
       <div className="flex-1 ml-70 p-8">
