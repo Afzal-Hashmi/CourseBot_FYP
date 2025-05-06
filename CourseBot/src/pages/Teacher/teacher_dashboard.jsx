@@ -11,6 +11,8 @@ import {
   FaCalendarAlt,
 } from "react-icons/fa";
 
+import TeacherSidebar from "./teacher_sidebar";
+
 const TeacherDashboard = () => {
   const navigateToAIScreen = (event) => {
     if (!event.target.closest(".course-actions")) {
@@ -31,7 +33,7 @@ const TeacherDashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
+      <TeacherSidebar />
       <div className="w-70 bg-[#2c3e50] text-white fixed h-full p-8">
         <div className="flex items-center gap-2 text-xl font-bold mb-12">
           <FaRobot className="text-blue-500" />
