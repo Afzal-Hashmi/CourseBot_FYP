@@ -29,7 +29,7 @@ function App() {
           <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="/student-courses" element={<StudentCourses />} />
           <Route path="/student-enrollments" element={<MyEnrollments />} />
-          <Route path="/student-profile" element={<StudentProfile />} /
+          <Route path="/student-profile" element={<StudentProfile />} />
           <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
           <Route path="/teacher-myCourses" element={<MyCourses />} />
           <Route path="/students-management" element={<StudentsManagement />} />
