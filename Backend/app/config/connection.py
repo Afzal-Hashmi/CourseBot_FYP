@@ -44,10 +44,10 @@ AsyncSessionLocal = sessionmaker(
 )
 
 
-def get_db_connection():
-    Engine = create_engine(os.getenv("DATABASE_URL"))
-    Session = sessionmaker(bind=Engine)
-    return Session
+# def get_db_connection():
+#     Engine = create_engine(os.getenv("DATABASE_URL"))
+#     Session = sessionmaker(bind=Engine)
+#     return Session
 
 
 # Dependency function to get a DB session in routes

@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException,Depends
 from sqlalchemy import select
-from app.config.connection import get_db, get_db_connection
+from app.config.connection import get_db
 from app.repo.db.models import Role, User
 from app.schemas.userSchema import UserCreate, UserLoginSchema, UserSchema
 from sqlalchemy.exc import SQLAlchemyError
@@ -9,7 +9,7 @@ from sqlalchemy.orm import selectinload, joinedload
 
 
 class UserRepository:
-    def __init__(self, db: AsyncSession = Depends(get_db)):
+    def __init__(self, db:AsyncSession):
         self.db = db
 
     async def get_role_id(self, role: str) -> int | bool:
@@ -36,9 +36,13 @@ class UserRepository:
         try:
             # session = get_db_connection()
             # db = session()
+            print(f"DB Instance Type: {type(self.db)}")
+
+            print("Fetching user by email:", email)
             result = await self.db.execute(
                 select(User).options(joinedload(User.roles)).where(User.email == email)
             )
+            print("Query executed successfully.",result)
             user = result.scalar_one_or_none()
 
             if user:

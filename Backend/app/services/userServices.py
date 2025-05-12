@@ -1,5 +1,5 @@
 # fastapi
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status,Depends
 from fastapi.responses import JSONResponse
 
 # sqlAlchemy
@@ -24,69 +24,73 @@ from dotenv import load_dotenv
 
 from jose import jwt, JWTError
 
+from app.config.connection import get_db
+
 load_dotenv()
 
 
-async def createUser(userData: UserCreate, role: str):
-    user_repo = UserRepository()
-    try:
-        roleId = await user_repo.get_role_id(role)
+class UserService:
+    def __init__(self,db:AsyncSession = Depends(get_db)):
+        self.user_repo = UserRepository(db)
+    async def createUser(self,userData: UserCreate, role: str):
+        try:
+            roleId = await self.user_repo.get_role_id(role)
 
-        if not roleId:
-            raise HTTPException(status_code=400, detail="Role not found")
+            if not roleId:
+                raise HTTPException(status_code=400, detail="Role not found")
 
-        userData.roleId = roleId
-        userData.hashPassword, userData.salt = generateHash(userData.password)
+            userData.roleId = roleId
+            userData.hashPassword, userData.salt = generateHash(userData.password)
 
-        # Create the user in the database
-        if await user_repo.create_user(userData):
-            return JSONResponse(
-                status_code=200,
-                content={"success": True, "message": "User created successfully"},
-            )
-        else:
+            # Create the user in the database
+            if await self.user_repo.create_user(userData):
+                return JSONResponse(
+                    status_code=200,
+                    content={"success": True, "message": "User created successfully"},
+                )
+            else:
+                raise HTTPException(
+                    status_code=500, detail="Internal server error during user creation."
+                )
+
+        except SQLAlchemyError as e:
+            print(f"Database error: {e}")
             raise HTTPException(
                 status_code=500, detail="Internal server error during user creation."
             )
 
-    except SQLAlchemyError as e:
-        print(f"Database error: {e}")
-        raise HTTPException(
-            status_code=500, detail="Internal server error during user creation."
-        )
-
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        raise HTTPException(
-            status_code=500, detail="Internal server error during user creation."
-        )
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            raise HTTPException(
+                status_code=500, detail="Internal server error during user creation."
+            )
 
 
-async def loginUser(userData: UserLoginSchema):
-    user_repo = UserRepository()
-    user = await user_repo.get_user_by_email(userData.email)
+    async def loginUser(self,userData: UserLoginSchema):
 
-    if not user:
-        raise HTTPException(status_code=404, detail="User does not exist")
+        user = await self.user_repo.get_user_by_email(userData.email)
 
-    if not verifyHash(userData.password, user.hashPassword, user.salt):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect Password"
-        )
+        if not user:
+            raise HTTPException(status_code=404, detail="User does not exist")
 
-    user = {
-        "id": user.id,
-        "firstName": user.firstName,
-        "lastName": user.lastName,
-        "email": user.email,
-        "roles": user.roles.role,
-    }
+        if not verifyHash(userData.password, user.hashPassword, user.salt):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect Password"
+            )
 
-    token = jwt.encode(user, "afzal", "HS256")
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Email and Password",
-        )
-    user = {**user, "token": token}
-    return user
+        user = {
+            "id": user.id,
+            "firstName": user.firstName,
+            "lastName": user.lastName,
+            "email": user.email,
+            "roles": user.roles.role,
+        }
+
+        token = jwt.encode(user, "afzal", "HS256")
+        if not token:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid Email and Password",
+            )
+        user = {**user, "token": token}
+        return user

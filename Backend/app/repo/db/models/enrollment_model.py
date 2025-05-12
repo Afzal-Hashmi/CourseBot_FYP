@@ -14,4 +14,4 @@ class Enrollment(Base):
     course_id = Column(Integer, ForeignKey('courses.course_id'))
 
     student = relationship("User", back_populates="enrollments")
-    course = relationship("Course", back_populates="enrollments")
+    courses = relationship("Course", back_populates="enrollments")

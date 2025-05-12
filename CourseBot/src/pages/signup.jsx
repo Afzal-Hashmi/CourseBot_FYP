@@ -44,7 +44,7 @@ const SignUpPage = () => {
 
           <div className="text-center mt-6">
             Already have an account?{" "}
-            <Link to="/login" className="text-[#3498db] font-bold">
+            <Link to="/" className="text-[#3498db] font-bold">
               Log In
             </Link>
           </div>

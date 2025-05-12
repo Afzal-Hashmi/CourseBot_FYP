@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaRobot,
   FaHome,
@@ -12,16 +12,55 @@ import {
   FaEye,
 } from "react-icons/fa";
 import StudentSidebar from "./student_sidebar";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
-const TeacherProfile = () => {
+const StudentProfile = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState({});
+  const [role, setRole] = useState("");
+  useEffect(() => {
+    const token = Cookies.get("token");
+    const role = Cookies.get("role");
+    const user = Cookies.get("user");
+    if (!token || role !== "student") {
+      // Redirect to login page if not authenticated
+      console.log("Redirecting to login page...");
+      navigate("/");
+    }
+    setUser(JSON.parse(user));
+    setRole(role);
+  }, []);
+
   const [showPassword, setShowPassword] = useState({
     current: false,
     new: false,
     confirm: false,
   });
-
   const togglePassword = (field) => {
     setShowPassword({ ...showPassword, [field]: !showPassword[field] });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Handle form submission logic here
+    console.log("Form submitted with values:", user);
+    // You can send the updated user data to your backend API
+    // using fetch or axios
+    // Example:
+    // fetch("/api/update-profile", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(user),
+  };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUser((prevUser) => ({
+      ...prevUser,
+      [name]: value,
+    }));
   };
 
   return (
@@ -40,10 +79,13 @@ const TeacherProfile = () => {
             />
             <div className="flex-1">
               <h1 className="text-2xl text-gray-800 font-semibold mb-1">
-                Yousuf Hashmi
+                {user.firstName?.charAt(0).toUpperCase() +
+                  user.firstName?.slice(1) +
+                  " " +
+                  user.lastName?.charAt(0).toUpperCase() +
+                  user.lastName?.slice(1)}
               </h1>
-              <p className="text-gray-600">Computer Science Department</p>
-              <p className="text-gray-600">yousuf.j@university.edu</p>
+              <p className="text-gray-600">{user.email}</p>
               <div className="mt-4 relative inline-block">
                 <button className="bg-gray-200 text-gray-800 py-2 px-4 rounded flex items-center gap-2 hover:bg-gray-300">
                   <FaCamera /> Change Photo
@@ -62,24 +104,42 @@ const TeacherProfile = () => {
             <h2 className="text-xl text-gray-800 font-semibold flex items-center gap-3 mb-6">
               <FaUserEdit /> Personal Information
             </h2>
-            <form className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-gray-700 font-bold mb-2">
-                  Full Name
+                  First Name
                 </label>
                 <input
                   type="text"
-                  defaultValue="yousuf hashmi"
+                  name="firstName"
+                  value={user.firstName}
+                  onChange={handleChange}
                   className="w-full border-2 border-gray-200 p-3 rounded focus:border-blue-400"
                 />
               </div>
+
+              <div>
+                <label className="block text-gray-700 font-bold mb-2">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={user.lastName}
+                  onChange={handleChange}
+                  className="w-full border-2 border-gray-200 p-3 rounded focus:border-blue-400"
+                />
+              </div>
+
               <div>
                 <label className="block text-gray-700 font-bold mb-2">
                   Email Address
                 </label>
                 <input
                   type="email"
-                  defaultValue="yousuf.j@university.edu"
+                  name="email"
+                  value={user.email}
+                  onChange={handleChange}
                   className="w-full border-2 border-gray-200 p-3 rounded focus:border-blue-400"
                 />
               </div>
@@ -131,4 +191,4 @@ const TeacherProfile = () => {
   );
 };
 
-export default TeacherProfile;
+export default StudentProfile;

@@ -15,6 +15,6 @@ class Course(Base):
     teacher_id = Column(Integer, ForeignKey('users.id'))
 
     teacher = relationship("User", back_populates="courses")
-    content = relationship('CourseContent', back_populates='courses', cascade='all,delete-orphan')
+    course_content = relationship('CourseContent', back_populates='courses', cascade='all,delete-orphan')
     enrollments = relationship("Enrollment", back_populates="courses", cascade='all,delete-orphan')
-    feedback = relationship("CourseFeedback", back_populates="courses", cascade='all,delete-orphan')
+    course_feedback = relationship("CourseFeedback", back_populates="courses", cascade='all,delete-orphan')
