@@ -14,4 +14,4 @@ class CourseFeedback(Base):
     course_id = Column(Integer, ForeignKey('courses.course_id'))
 
     student = relationship("User", back_populates="course_feedback")
-    course = relationship("Course", back_populates="course_feedback")
+    courses = relationship("Course", back_populates="course_feedback")

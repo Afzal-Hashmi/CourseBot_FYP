@@ -8,8 +8,21 @@ import {
   FaSignOutAlt,
   FaTimes,
 } from "react-icons/fa";
-
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 const StudentSidebar = () => {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    Cookies.remove("token", { path: "/student" });
+    Cookies.remove("user", { path: "/student" });
+    Cookies.remove("role", { path: "/student" });
+    if (!Cookies.get("token") && !Cookies.get("user") && !Cookies.get("role")) {
+      console.log("Logout successful! Redirecting...");
+      navigate("/");
+    } else {
+      console.error("Logout failed. Cookies still exist.");
+    }
+  };
   return (
     <div className="w-70 bg-[#2c3e50] text-white p-8 fixed h-full">
       <div className="flex items-center gap-2 text-xl font-bold mb-12">
@@ -19,7 +32,7 @@ const StudentSidebar = () => {
       <ul className="mt-8 space-y-4">
         <li>
           <a
-            href="./student-dashboard"
+            href="/student/dashboard"
             className="flex items-center gap-3 text-white"
           >
             <FaHome />
@@ -28,7 +41,7 @@ const StudentSidebar = () => {
         </li>
         <li>
           <a
-            href="./student-courses"
+            href="/student/courses"
             className="flex items-center gap-3 text-white"
           >
             <FaBookOpen />
@@ -37,7 +50,7 @@ const StudentSidebar = () => {
         </li>
         <li>
           <a
-            href="/student-enrollments"
+            href="/student/enrollments"
             className="flex items-center gap-3 text-white"
           >
             <FaClipboardList />
@@ -46,7 +59,7 @@ const StudentSidebar = () => {
         </li>
         <li>
           <a
-            href="/student-profile"
+            href="/student/profile"
             className="flex items-center gap-3 text-white"
           >
             <FaCog />
@@ -54,7 +67,10 @@ const StudentSidebar = () => {
           </a>
         </li>
         <li>
-          <a href="/login" className="flex items-center gap-3 text-white">
+          <a
+            onClick={handleLogout}
+            className="flex items-center gap-3 text-white"
+          >
             <FaSignOutAlt />
             Logout
           </a>

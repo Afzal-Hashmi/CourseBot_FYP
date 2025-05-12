@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaRobot,
   FaHome,
@@ -14,12 +14,29 @@ import {
   FaEyeSlash,
 } from "react-icons/fa";
 import TeacherSidebar from "./teacher_sidebar";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 const TeacherProfile = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
+  const [updateProfile, setUpdateProfile] = useState([]);
 
+  const [user, setUser] = useState({});
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    const role = Cookies.get("role");
+    const user = Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null;
+    if (!token || role !== "teacher") {
+      // Redirect to login page if not authenticated
+      console.log("Redirecting to login page...");
+      navigate("/");
+    }
+    setUser(user);
+  }, []);
   const togglePasswordVisibility = (field) => {
     switch (field) {
       case "current":
@@ -36,9 +53,21 @@ const TeacherProfile = () => {
     }
   };
 
-  const handleFileChange = (e) => {
-    // Handle file upload logic here
-    console.log("File selected:", e.target.files[0]);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Handle form submission logic here
+    console.log("Form submitted with values:", updateProfile);
+    // You can send the updated user data to your backend API
+    // using fetch or axios
+    // Example:
+    // fetch("/api/update-profile", { method: "POST", headers: { "Content-Type": "application/json", }, body: JSON.stringify(user), });
+  };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUpdateProfile((prevUser) => ({
+      ...prevUser,
+      [name]: value,
+    }));
   };
 
   return (
@@ -65,16 +94,19 @@ const TeacherProfile = () => {
                   type="file"
                   accept="image/*"
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  onChange={handleFileChange}
+                  // onChange={handleChange}
                 />
               </div>
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-800 mb-2">
-                Prof. Yousaf
+                {user.firstName?.charAt(0).toUpperCase() +
+                  user.firstName?.slice(1) +
+                  " " +
+                  user.lastName?.charAt(0).toUpperCase() +
+                  user.lastName?.slice(1)}
               </h1>
-              <p className="text-gray-600 mb-1">Computer Science Department</p>
-              <p className="text-gray-600">yousuf.j@university.edu</p>
+              <p className="text-gray-600">{user.email}</p>
             </div>
           </div>
 
@@ -84,14 +116,28 @@ const TeacherProfile = () => {
               <FaUserEdit />
               <span>Personal Information</span>
             </h2>
-            <form>
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="mb-6">
                 <label className="block text-gray-700 font-medium mb-2">
-                  Full Name
+                  First Name
                 </label>
                 <input
                   type="text"
-                  defaultValue="yousuf hashmi"
+                  name="firstName"
+                  onChange={handleChange}
+                  value={user.firstName}
+                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+              <div className="mb-6">
+                <label className="block text-gray-700 font-medium mb-2">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  name="lastName"
+                  onChange={handleChange}
+                  value={user.lastName}
                   className="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-blue-500 focus:outline-none"
                 />
               </div>
@@ -101,7 +147,9 @@ const TeacherProfile = () => {
                 </label>
                 <input
                   type="email"
-                  defaultValue="yousuf.j@university.edu"
+                  name="email"
+                  onChange={handleChange}
+                  value={user.email}
                   className="w-full px-4 py-2 border-2 border-gray-200 rounded-md focus:border-blue-500 focus:outline-none"
                 />
               </div>

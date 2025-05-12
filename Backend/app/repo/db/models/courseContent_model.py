@@ -12,4 +12,4 @@ class CourseContent(Base):
     content_type = Column(Enum('video', 'pdf', 'txt', 'ppt',name='content_type_enum'), nullable=False)
     content_url = Column(URLType, nullable=False)
     course_id = Column(Integer, ForeignKey('courses.course_id'))
-    course = relationship('Course', back_populates='course_content')
+    courses = relationship('Course', back_populates='course_content')

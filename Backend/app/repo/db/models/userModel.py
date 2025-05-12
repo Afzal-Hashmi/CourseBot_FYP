@@ -12,9 +12,9 @@ class User(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     hashPassword = Column(String, nullable=False)
     salt = Column(String, nullable=False)
-    roleId = Column(Integer, ForeignKey("roles.role_id"))
+    roleId = Column(Integer, ForeignKey("roles.id"))
 
     roles = relationship("Role", back_populates="users")
     courses = relationship("Course", back_populates="teacher", cascade='all,delete-orphan')
     enrollments = relationship("Enrollment", back_populates="student", cascade='all,delete-orphan')
-    feedback = relationship("CourseFeedback", back_populates="student")
+    course_feedback = relationship("CourseFeedback", back_populates="student")
