@@ -34,7 +34,7 @@ const TeacherDashboard = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <TeacherSidebar />
-      <div className="w-70 bg-[#2c3e50] text-white fixed h-full p-8">
+      {/* <div className="w-70 bg-[#2c3e50] text-white fixed h-full p-8">
         <div className="flex items-center gap-2 text-xl font-bold mb-12">
           <FaRobot className="text-blue-500" />
           <span>CourseBot</span>
@@ -86,7 +86,7 @@ const TeacherDashboard = () => {
             </a>
           </li>
         </ul>
-      </div>
+      </div> */}
 
       {/* Main Content */}
       <div className="flex-1 ml-70 p-8">

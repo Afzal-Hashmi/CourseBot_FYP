@@ -13,19 +13,22 @@ import Cookies from "js-cookie";
 
 export default function Login() {
   const [role, setRole] = useState("student");
-  const [email, setEmail] = useState("");
+  const [username, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
+    setLoading(true);
+    setError("");
     try {
       const response = await fetch("http://localhost:8000/login", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: JSON.stringify({ email, password }),
+        body: new URLSearchParams({ username, password }),
       });
 
       const data = await response.json();
@@ -66,9 +69,11 @@ export default function Login() {
           navigate("/student/dashboard");
         }
       } else {
+        setLoading(false);
         setError(data.message || "Login failed. Please try again.");
       }
     } catch (err) {
+      setLoading(false);
       console.error("Login error:", err);
       setError("Something went wrong. Please try again later.");
     }
@@ -131,7 +136,7 @@ export default function Login() {
             <input
               type="email"
               placeholder="Email"
-              value={email}
+              value={username}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full p-3 border-2 border-gray-300 rounded"
               required
@@ -159,7 +164,7 @@ export default function Login() {
               type="submit"
               className="w-full bg-[#3498db] text-white py-3 rounded font-semibold"
             >
-              Log In
+              {loading ? "Logging in..." : "Login"}
             </button>
 
             <div className="text-center mt-4">

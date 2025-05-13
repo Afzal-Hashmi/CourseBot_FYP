@@ -29,7 +29,7 @@ from app.config.connection import get_db
 load_dotenv()
 
 
-class UserService:
+class AuthService:
     def __init__(self,db:AsyncSession = Depends(get_db)):
         self.user_repo = UserRepository(db)
     async def createUser(self,userData: UserCreate, role: str):
@@ -68,7 +68,7 @@ class UserService:
 
     async def loginUser(self,userData: UserLoginSchema):
 
-        user = await self.user_repo.get_user_by_email(userData.email)
+        user = await self.user_repo.get_user_by_email(userData.username)
 
         if not user:
             raise HTTPException(status_code=404, detail="User does not exist")

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaRobot,
   FaHome,
@@ -10,53 +10,117 @@ import {
   FaStar,
 } from "react-icons/fa";
 import TeacherSidebar from "./teacher_sidebar";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const MyCourses = () => {
-  const courses = [
-    {
-      id: 1,
-      name: "Web Development Fundamentals",
-      status: "published",
-      students: 45,
-      rating: 4.8,
-      reviews: 28,
-      lastUpdated: "2 days ago",
-    },
-    {
-      id: 2,
-      name: "Python Programming Basics",
-      status: "draft",
-      students: 0,
-      rating: null,
-      reviews: 0,
-      lastUpdated: "1 week ago",
-    },
-    {
-      id: 3,
-      name: "Mobile App Development",
-      status: "published",
-      students: 28,
-      rating: 4.5,
-      reviews: 15,
-      lastUpdated: "3 days ago",
-    },
-    {
-      id: 4,
-      name: "Data Science Fundamentals",
-      status: "published",
-      students: 62,
-      rating: 4.7,
-      reviews: 34,
-      lastUpdated: "5 days ago",
-    },
-  ];
+  const navigate = useNavigate();
+  const [course, setCourse] = useState({});
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    setLoading(true);
+    const token = Cookies.get("token");
+    const role = Cookies.get("role");
+    const user = Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null;
+    console.log(`Bearer ${token}`);
+    if (!token || !role == "teacher") {
+      navigate("/");
+    } else {
+      const fetchcourse = async () => {
+        if (user) {
+          const response = await fetch(
+            "http://localhost:8000/teacher/fetchcourses",
+            {
+              method: "GET",
+              headers: {
+                accept: "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          console.log("Response:", response);
+          if (response.ok) {
+            const responseData = await response.json();
+            console.log("Response Data:", responseData);
+            setCourse(responseData.data);
+            console.log(course);
+            setLoading(false);
+          } else {
+            console.error("Error fetching courses:");
+          }
+        }
+      };
+      fetchcourse();
+    }
+  }, []);
+
+  // const courses = [
+  //   {
+  //     id: 1,
+  //     name: "Web Development Fundamentals",
+  //     status: "published",
+  //     students: 45,
+  //     rating: 4.8,
+  //     reviews: 28,
+  //     lastUpdated: "2 days ago",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Python Programming Basics",
+  //     status: "draft",
+  //     students: 0,
+  //     rating: null,
+  //     reviews: 0,
+  //     lastUpdated: "1 week ago",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Mobile App Development",
+  //     status: "published",
+  //     students: 28,
+  //     rating: 4.5,
+  //     reviews: 15,
+  //     lastUpdated: "3 days ago",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Data Science Fundamentals",
+  //     status: "published",
+  //     students: 62,
+  //     rating: 4.7,
+  //     reviews: 34,
+  //     lastUpdated: "5 days ago",
+  //   },
+  // ];
 
   const handleEdit = (courseId) => {
     console.log("Edit course", courseId);
   };
 
-  const handleDelete = (courseId) => {
+  const handleDelete = async (courseId) => {
+    setLoading(true);
     console.log("Delete course", courseId);
+    const response = await fetch(
+      `http://localhost:8000/teacher/deletecourse/${courseId}`,
+      {
+        method: "DELETE",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${Cookies.get("token")}`,
+        },
+      }
+    );
+
+    if (response.ok) {
+      const responseData = await response.json();
+      console.log("Response Data:", responseData);
+      setCourse(responseData.data);
+      console.log("Course deleted successfully");
+      setLoading(false);
+    } else {
+      setLoading(false);
+      console.error("Error deleting course:", response.statusText);
+    }
   };
 
   const handleCreateCourse = () => {
@@ -98,14 +162,14 @@ const MyCourses = () => {
                     Course Name
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">
-                    Status
+                    Status Description
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">
+                  {/*<th className="px-6 py-3 text-left text-sm font-medium text-gray-500">
                     Students
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">
                     Rating
-                  </th>
+                  </th> */}
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">
                     Last Updated
                   </th>
@@ -115,13 +179,14 @@ const MyCourses = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {courses.map((course) => (
-                  <tr key={course.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {course.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
+                {course.length > 0 ? (
+                  course.map((course) => (
+                    <tr key={course.course_id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {course?.course_name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {/* <span
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           course.status === "published"
                             ? "bg-green-500"
@@ -129,12 +194,13 @@ const MyCourses = () => {
                         } text-white`}
                       >
                         {course.status === "published" ? "Published" : "Draft"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {course.students}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      </span> */}
+                        {course?.course_description}
+                      </td>
+                      {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      45
+                    </td> */}
+                      {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {course.rating ? (
                         <span className="flex items-center gap-1">
                           {course.rating} <FaStar className="text-yellow-400" />{" "}
@@ -143,28 +209,34 @@ const MyCourses = () => {
                       ) : (
                         "-"
                       )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {course.lastUpdated}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div className="flex gap-2">
-                        <button
-                          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
-                          onClick={() => handleEdit(course.id)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-                          onClick={() => handleDelete(course.id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      55
+                    </td> */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {course?.updated_at.split(" ")[0]}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div className="flex gap-2">
+                          <button
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                            onClick={() => handleEdit(course.course_id)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                            onClick={() => handleDelete(course.course_id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <td colSpan="4" className="text-center py-4 text-gray-500">
+                    {loading ? "Loading..." : "No courses available."}
+                  </td>
+                )}
               </tbody>
             </table>
           </div>
