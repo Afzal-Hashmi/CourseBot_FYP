@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, status
-from fastapi.responses import JSONResponse
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from app.config.connection import get_db
-from app.schemas.userSchema import UserSchema, UserCreate, UserLoginSchema
-from app.api.controllers.auth.authController import UserController
+from app.schemas.userSchema import UserCreate, UserLoginSchema
+from ..controllers.auth.authController import UserController
 
 authRouter = APIRouter()
 
@@ -25,5 +24,6 @@ async def teacherSignupRoute(
 
 
 @authRouter.post("/login")
-async def login(userData: UserLoginSchema, controller: UserController = Depends(UserController)):
+async def login(userData: OAuth2PasswordRequestForm = Depends(), controller: UserController = Depends(UserController)):
+    print("Login route called")
     return await controller.loginUserController(userData)
