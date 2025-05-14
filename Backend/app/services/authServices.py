@@ -1,4 +1,5 @@
 # fastapi
+from datetime import datetime, timedelta
 from fastapi import HTTPException, status,Depends
 from fastapi.responses import JSONResponse
 
@@ -32,9 +33,9 @@ load_dotenv()
 class AuthService:
     def __init__(self,db:AsyncSession = Depends(get_db)):
         self.user_repo = UserRepository(db)
-    async def createUser(self,userData: UserCreate, role: str):
+    async def create_user_service(self,userData: UserCreate, role: str):
         try:
-            roleId = await self.user_repo.get_role_id(role)
+            roleId = await self.user_repo.get_role_id_repo(role)
 
             if not roleId:
                 raise HTTPException(status_code=400, detail="Role not found")
@@ -43,7 +44,7 @@ class AuthService:
             userData.hashPassword, userData.salt = generateHash(userData.password)
 
             # Create the user in the database
-            if await self.user_repo.create_user(userData):
+            if await self.user_repo.create_user_repo(userData):
                 return JSONResponse(
                     status_code=200,
                     content={"success": True, "message": "User created successfully"},
@@ -66,9 +67,9 @@ class AuthService:
             )
 
 
-    async def loginUser(self,userData: UserLoginSchema):
+    async def login_user_service(self,userData: UserLoginSchema):
 
-        user = await self.user_repo.get_user_by_email(userData.username)
+        user = await self.user_repo.get_user_by_email_repo(userData.username)
 
         if not user:
             raise HTTPException(status_code=404, detail="User does not exist")
@@ -86,7 +87,9 @@ class AuthService:
             "roles": user.roles.role,
         }
 
-        token = jwt.encode(user, "afzal", "HS256")
+        user.update({'exp': datetime.utcnow() + timedelta(minutes=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")))})
+
+        token = jwt.encode(user, os.getenv("SECRET_KEY"), os.getenv("ALGORITHM"))
         if not token:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaRobot,
   FaHome,
@@ -10,14 +10,56 @@ import {
   FaUserFriends,
   FaCalendarAlt,
 } from "react-icons/fa";
-
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 import TeacherSidebar from "./teacher_sidebar";
 
 const TeacherDashboard = () => {
+  const [loading, setLoading] = React.useState(false);
+  const [course, setCourse] = React.useState([]);
+  const navigate = useNavigate();
+  const [user, setUser] = React.useState(null);
+  useEffect(() => {
+    setLoading(true);
+    const token = Cookies.get("token");
+    const user = Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null;
+    console.log(`Bearer ${token}`);
+    if (!token || !Cookies.get("role") == "teacher") {
+      navigate("/");
+    } else {
+      const fetchcourse = async () => {
+        if (user) {
+          const response = await fetch(
+            "http://localhost:8000/teacher/fetchcourses",
+            {
+              method: "GET",
+              headers: {
+                accept: "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          console.log("Response:", response);
+          if (response.ok) {
+            const responseData = await response.json();
+            console.log("Response Data:", responseData);
+            setUser(user);
+            setCourse(responseData.data);
+            console.log(course);
+            setLoading(false);
+          } else {
+            console.error("Error fetching courses:");
+          }
+        }
+      };
+      fetchcourse();
+    }
+  }, []);
+
   const navigateToAIScreen = (event) => {
     if (!event.target.closest(".course-actions")) {
       console.log("Navigating to AI screen");
-      window.location.href = "/teacher-ai";
+      window.location.href = "/teacher/ai";
     }
   };
 
@@ -26,158 +68,93 @@ const TeacherDashboard = () => {
     console.log("Edit course", courseId);
   };
 
-  const deleteCourse = (event, courseId) => {
-    event.stopPropagation();
+  const handleDelete = async (courseId) => {
+    setLoading(true);
     console.log("Delete course", courseId);
+    const response = await fetch(
+      `http://localhost:8000/teacher/deletecourse/${courseId}`,
+      {
+        method: "DELETE",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${Cookies.get("token")}`,
+        },
+      }
+    );
+
+    if (response.ok) {
+      const responseData = await response.json();
+      console.log("Response Data:", responseData);
+      setCourse(responseData.data);
+      console.log("Course deleted successfully");
+      setLoading(false);
+    } else {
+      setLoading(false);
+      console.error("Error deleting course:", response.statusText);
+    }
   };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       <TeacherSidebar />
-      {/* <div className="w-70 bg-[#2c3e50] text-white fixed h-full p-8">
-        <div className="flex items-center gap-2 text-xl font-bold mb-12">
-          <FaRobot className="text-blue-500" />
-          <span>CourseBot</span>
-        </div>
-        <ul className="space-y-4">
-          <li>
-            <a
-              href="/teacher-dashboard"
-              className="flex items-center gap-3 text-lg hover:text-blue-400"
-            >
-              <FaHome />
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="/teacher-myCourses"
-              className="flex items-center gap-3 text-lg hover:text-blue-400"
-            >
-              <FaBookOpen />
-              <span>My Courses</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="/students-management"
-              className="flex items-center gap-3 text-lg hover:text-blue-400"
-            >
-              <FaUsers />
-              <span>Students</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="/teacher-profile"
-              className="flex items-center gap-3 text-lg hover:text-blue-400"
-            >
-              <FaCog />
-              <span>Profile</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="/login"
-              className="flex items-center gap-3 text-lg hover:text-blue-400"
-            >
-              <FaSignOutAlt />
-              <span>Logout</span>
-            </a>
-          </li>
-        </ul>
-      </div> */}
 
       {/* Main Content */}
       <div className="flex-1 ml-70 p-8">
-        {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-semibold">
-            Welcome Back, Professor Smith
+            Welcome Back, {user ? user.firstName : "Teacher"}!
           </h1>
           <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md flex items-center gap-2">
             <FaPlus />
             <span>Create New Course</span>
           </button>
         </div>
-
-        {/* Courses Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Course Card 1 */}
-          <div
-            className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer relative"
-            onClick={navigateToAIScreen}
-          >
-            <div className="h-40 bg-gray-200 rounded-lg mb-4"></div>
-            <h3 className="text-xl font-semibold mb-2">
-              Introduction to Web Development
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Learn HTML, CSS, and JavaScript fundamentals
-            </p>
-            <div className="flex justify-between text-gray-500 text-sm">
-              <p className="flex items-center gap-2">
-                <FaUserFriends />
-                <span>45 Students</span>
-              </p>
-              <p className="flex items-center gap-2">
-                <FaCalendarAlt />
-                <span>Last updated: 2 days ago</span>
-              </p>
-            </div>
-            <div className="absolute top-6 right-6 flex gap-2">
-              <button
-                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
-                onClick={(e) => editCourse(e, 1)}
+          {course.length > 0 ? (
+            course.map((course) => (
+              <div
+                className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer relative"
+                onClick={navigateToAIScreen}
               >
-                Edit
-              </button>
-              <button
-                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-                onClick={(e) => deleteCourse(e, 1)}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
+                <div className="h-40 bg-gray-200 rounded-lg mb-4"></div>
+                <h3 className="text-xl font-semibold mb-2">
+                  {course?.course_name}
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  {course?.course_description}
+                </p>
+                <div className="flex justify-between text-gray-500 text-sm">
+                  <p className="flex items-center gap-2">
+                    <FaUserFriends />
+                    <span>45 Students</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <FaCalendarAlt />
+                    <span>{course?.updated_at.split(" ")[0]}</span>
+                  </p>
+                </div>
 
-          {/* Course Card 2 */}
-          <div
-            className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer relative"
-            onClick={navigateToAIScreen}
-          >
-            <div className="h-40 bg-gray-200 rounded-lg mb-4"></div>
-            <h3 className="text-xl font-semibold mb-2">
-              Advanced Python Programming
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Master Python and its advanced concepts
-            </p>
-            <div className="flex justify-between text-gray-500 text-sm">
-              <p className="flex items-center gap-2">
-                <FaUserFriends />
-                <span>32 Students</span>
-              </p>
-              <p className="flex items-center gap-2">
-                <FaCalendarAlt />
-                <span>Last updated: 1 week ago</span>
-              </p>
+                <div className="absolute top-6 right-6 flex gap-2">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                    onClick={(e) => editCourse(e, 1)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                    onClick={(e) => handleDelete(course?.course_id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              {loading ? "Loading..." : "No Courses Avaliable"}
             </div>
-            <div className="absolute top-6 right-6 flex gap-2">
-              <button
-                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
-                onClick={(e) => editCourse(e, 2)}
-              >
-                Edit
-              </button>
-              <button
-                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-                onClick={(e) => deleteCourse(e, 2)}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
