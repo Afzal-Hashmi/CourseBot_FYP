@@ -3,8 +3,8 @@ from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
-import asyncio
-from app.config.init_db import createTables
+# import asyncio
+# from app.config.init_db import createTables
 
 from app.config.connection import get_db
 
@@ -24,9 +24,9 @@ app.add_middleware(
     allow_headers=["*"]
     )
 
-@app.on_event("startup")
-async def on_startup():
-    await createTables()
+# @app.on_event("startup")
+# async def on_startup():
+#     await createTables()
 
 app.include_router(apiRouter)
 

@@ -12,11 +12,11 @@ class UserRepository:
     def __init__(self, db:AsyncSession):
         self.db = db
 
-    async def get_role_id(self, role: str) -> int | bool:
+    async def get_role_id_repo(self, role: str) -> int | bool:
         role_result = await self.db.execute(select(Role.role_id).where(Role.role == role))
         return role_result.scalar_one_or_none()
 
-    async def create_user(self, userData: UserCreate) -> bool:
+    async def create_user_repo(self, userData: UserCreate) -> bool:
         try:
             userDict = userData.model_dump(exclude={"password"})
             user = User(**userDict)
@@ -32,7 +32,7 @@ class UserRepository:
                 status_code=500, detail="Email already exists or other error."
             )
 
-    async def get_user_by_email(self, email: str):
+    async def get_user_by_email_repo(self, email: str):
         try:
             # session = get_db_connection()
             # db = session()

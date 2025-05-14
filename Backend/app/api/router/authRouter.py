@@ -12,7 +12,7 @@ async def studentSignupRoute(
         userData: UserCreate, roleType: str = "student"
 ):
     user_controller = UserController()
-    return await user_controller.signupUser(userData, roleType=roleType)
+    return await user_controller.signup_user_controller(userData, roleType=roleType)
 
 
 @authRouter.post("/teacher-signup")
@@ -20,10 +20,10 @@ async def teacherSignupRoute(
         userData: UserCreate, roleType: str = "teacher"
 ):
     user_controller = UserController()
-    return await user_controller.signupUser(userData, roleType=roleType)
+    return await user_controller.signup_user_controller(userData, roleType=roleType)
 
 
 @authRouter.post("/login")
 async def login(userData: OAuth2PasswordRequestForm = Depends(), controller: UserController = Depends(UserController)):
     print("Login route called")
-    return await controller.loginUserController(userData)
+    return await controller.login_user_controller(userData)

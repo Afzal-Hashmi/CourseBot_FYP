@@ -9,14 +9,12 @@ class UserController:
     def __init__(self,service: AuthService = Depends(AuthService)):
         self.user_service = service
 
-    async def signupUser(self,userData: UserCreate, roleType: str):
-        return await self.user_service.createUser(userData, role=roleType)
+    async def signup_user_controller(self,userData: UserCreate, roleType: str):
+        return await self.user_service.create_user_service(userData, role=roleType)
 
 
-    async def loginUserController(self,userData: OAuth2PasswordRequestForm = Depends()):
-        print(userData)
-        Response = await self.user_service.loginUser(userData)
-        print("Response: ", Response.get('token'))
+    async def login_user_controller(self,userData: OAuth2PasswordRequestForm = Depends()):
+        Response = await self.user_service.login_user_service(userData)
         if Response:
             return JSONResponse(
                 content={
