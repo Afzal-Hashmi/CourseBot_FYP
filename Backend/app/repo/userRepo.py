@@ -13,7 +13,7 @@ class UserRepository:
         self.db = db
 
     async def get_role_id_repo(self, role: str) -> int | bool:
-        role_result = await self.db.execute(select(Role.role_id).where(Role.role == role))
+        role_result = await self.db.execute(select(Role.id).where(Role.role == role))
         return role_result.scalar_one_or_none()
 
     async def create_user_repo(self, userData: UserCreate) -> bool:

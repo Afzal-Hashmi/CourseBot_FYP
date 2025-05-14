@@ -1,5 +1,6 @@
 from logging.config import fileConfig
 from urllib.parse import urlparse
+from sqlalchemy_utils import URLType
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool

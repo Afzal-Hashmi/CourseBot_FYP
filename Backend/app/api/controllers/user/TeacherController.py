@@ -10,6 +10,16 @@ class TeacherController:
 
     async def fetch_courses_controller(self, current_user: dict):
         try:
+            if (current_user.get("role") != "teacher"):
+                return JSONResponse(
+                    content={
+                        "succeeded":False,
+                        "message":"You are not a Teacher",
+                        'data': [],
+                        'httpStatusCode': status.HTTP_401_UNAUTHORIZED
+                    },
+                    status_code=status.HTTP_401_UNAUTHORIZED
+                )
             response = await self.teacher_service.fetch_courses_service(current_user)
             if len(response)==0:
                 return JSONResponse(

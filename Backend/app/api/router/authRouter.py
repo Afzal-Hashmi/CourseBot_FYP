@@ -9,18 +9,16 @@ authRouter = APIRouter()
 
 @authRouter.post("/student-signup")
 async def studentSignupRoute(
-        userData: UserCreate, roleType: str = "student"
+        userData: UserCreate, roleType: str = "student",controller : UserController = Depends(UserController)
 ):
-    user_controller = UserController()
-    return await user_controller.signup_user_controller(userData, roleType=roleType)
+    return await controller.signup_user_controller(userData, roleType=roleType)
 
 
 @authRouter.post("/teacher-signup")
 async def teacherSignupRoute(
-        userData: UserCreate, roleType: str = "teacher"
+        userData: UserCreate, roleType: str = "teacher" , controller : UserController = Depends(UserController)
 ):
-    user_controller = UserController()
-    return await user_controller.signup_user_controller(userData, roleType=roleType)
+    return await controller.signup_user_controller(userData, roleType=roleType)
 
 
 @authRouter.post("/login")
