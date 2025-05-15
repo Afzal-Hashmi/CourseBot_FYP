@@ -95,8 +95,8 @@ const TeacherSidebar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    Cookies.remove("token", { path: "/teacher" });
-    Cookies.remove("user", { path: "/teacher" });
+    Cookies.remove("token", { path: "/" });
+    Cookies.remove("user", { path: "/" });
     Cookies.remove("role", { path: "/teacher" });
     if (!Cookies.get("token") && !Cookies.get("user") && !Cookies.get("role")) {
       console.log("Logout successful! Redirecting...");
