@@ -20,10 +20,16 @@ const TeacherDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = React.useState(null);
   useEffect(() => {
+    console.log(
+      "cookes",
+      Cookies.get("token"),
+      Cookies.get("user"),
+      Cookies.get("role")
+    );
+    console.log("hello");
     setLoading(true);
     const token = Cookies.get("token");
     const user = Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null;
-    console.log(`Bearer ${token}`);
     if (!token || !Cookies.get("role") == "teacher") {
       navigate("/");
     } else {
@@ -39,16 +45,14 @@ const TeacherDashboard = () => {
               },
             }
           );
-          console.log("Response:", response);
           if (response.ok) {
             const responseData = await response.json();
-            console.log("Response Data:", responseData);
             setUser(user);
             setCourse(responseData.data);
-            console.log(course);
             setLoading(false);
           } else {
-            console.error("Error fetching courses:");
+            setLoading(false);
+            console.error(response.message);
           }
         }
       };

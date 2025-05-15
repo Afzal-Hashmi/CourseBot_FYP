@@ -10,7 +10,7 @@ class TeacherController:
 
     async def fetch_courses_controller(self, current_user: dict):
         try:
-            if (current_user.get("role") != "teacher"):
+            if (current_user.get("roles") != "teacher"):
                 return JSONResponse(
                     content={
                         "succeeded":False,

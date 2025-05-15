@@ -32,40 +32,28 @@ export default function Login() {
       });
 
       const data = await response.json();
-      console.log("Login response:", data);
+      console.log("Login response:", data.data.roles);
       if (data.succeeded) {
         // Store token and user data (optional)
 
         // localStorage.setItem("user", JSON.stringify(data.data));
 
         // Redirect based on role
-        if (data.data.roles === "teacher") {
-          Cookies.set("token", data.data.token, {
-            path: "/teacher",
-            expires: 1,
-          });
-          Cookies.set("user", JSON.stringify(data.data), {
-            path: "/teacher",
-            expires: 1,
-          });
-          Cookies.set("role", data.data.roles, {
-            path: "/teacher",
-            expires: 1,
-          });
+        Cookies.set("token", data.data.token, {
+          path: "/",
+          expires: 10 / 1440,
+        });
+        Cookies.set("user", JSON.stringify(data.data), {
+          path: "/",
+          expires: 10 / 1440,
+        });
+        Cookies.set("role", data.data.roles, {
+          path: "/",
+          expires: 10 / 1440,
+        });
+        if (data.data.roles == "teacher") {
           navigate("/teacher/dashboard");
         } else {
-          Cookies.set("token", data.data.token, {
-            path: "/student",
-            expires: 1,
-          });
-          Cookies.set("user", JSON.stringify(data.data), {
-            path: "/student",
-            expires: 1,
-          });
-          Cookies.set("role", data.data.roles, {
-            path: "/student",
-            expires: 1,
-          });
           navigate("/student/dashboard");
         }
       } else {

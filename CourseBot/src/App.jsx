@@ -25,18 +25,23 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/student_signup" element={<StudentSignUpPage />} />
           <Route path="/teacher_signup" element={<TeacherSignUp />} />
-          {/* {/* <Route path="/teacher-dashboard" element={<TeacherDashboard />} /> */}
+
           <Route path="/student/dashboard" element={<StudentDashboard />} />
-          <Route path="/student/courses" element={<StudentCourses />} />
-          <Route path="/student/enrollments" element={<MyEnrollments />} />
-          <Route path="/student/profile" element={<StudentProfile />} />
           <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+
           <Route path="/teacher/myCourses" element={<MyCourses />} />
+          <Route path="/student/courses" element={<StudentCourses />} />
+
+          <Route path="/student/enrollments" element={<MyEnrollments />} />
+
+          <Route path="/teacher/profile" element={<TeacherProfile />} />
+          <Route path="/student/profile" element={<StudentProfile />} />
+
           <Route
             path="/teacher/students-management"
             element={<StudentsManagement />}
           />
-          <Route path="/teacher/profile" element={<TeacherProfile />} />
+
           <Route path="/teacher/ai" element={<CourseContentPage />} />
 
           {/* <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
