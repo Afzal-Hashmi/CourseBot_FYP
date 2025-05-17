@@ -1,5 +1,7 @@
 from fastapi import APIRouter, HTTPException,status, Depends
 from fastapi.responses import JSONResponse
+
+from ....schemas.teacherSchema import course_schema
 from ....services.TeacherServices import TeacherService
 # from ....schemas.userSchema import CourseSchema
 
@@ -112,6 +114,62 @@ class TeacherController:
                 content={
                     "succeeded": False,
                     "message": "Error deleting course",
+                    "data": [],
+                    "httpStatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                },
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+    async def create_course_controller(self, form_Data:course_schema, current_user:dict):
+        try:
+            if (current_user.get("roles") != "teacher"):
+                return JSONResponse(
+                    content={
+                        "succeeded":False,
+                        "message":"You are not a Teacher",
+                        'data': [],
+                        'httpStatusCode': status.HTTP_401_UNAUTHORIZED
+                    },
+                    status_code=status.HTTP_401_UNAUTHORIZED
+                )
+            response=await self.teacher_service.create_course_service(form_Data,current_user)
+            if len(response) == 0 :
+                return JSONResponse(
+                    content={
+                        "succeeded": False,
+                        "message": "Course Not Created",
+                        "data": [],
+                        "httpStatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    }
+                )
+            reponse = [{'course_id':course.course_id,
+                        'course_name':course.course_name,
+                        'course_description': course.course_description,
+                        'updated_at': str(course.updated_at)}
+                        for course in response]
+            return JSONResponse(
+                content={
+                    "succeeded": True,
+                    "message": "Course Created successfully",
+                    "data": reponse,
+                    "httpStatusCode": status.HTTP_200_OK,
+                }
+            )
+        except HTTPException as e:
+            return JSONResponse(
+                content={
+                    "succeeded": False,
+                    "message": e.detail,
+                    "data": [],
+                    "httpStatusCode": e.status_code,
+                },
+                status_code=e.status_code,
+            )
+        except Exception as e:
+            print(f"Error creating course: {e}")
+            return JSONResponse(
+                content={
+                    "succeeded": False,
+                    "message": "Error creating course",
                     "data": [],
                     "httpStatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
                 },
