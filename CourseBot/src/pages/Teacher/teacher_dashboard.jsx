@@ -18,15 +18,14 @@ const TeacherDashboard = () => {
   const [loading, setLoading] = React.useState(false);
   const [course, setCourse] = React.useState([]);
   const navigate = useNavigate();
+  const [modal, setModal] = useState(false);
   const [user, setUser] = React.useState(null);
+  const [formData, setFormData] = useState({
+    course_name: "",
+    course_description: "",
+  });
+  const [message, setMessage] = useState("");
   useEffect(() => {
-    console.log(
-      "cookes",
-      Cookies.get("token"),
-      Cookies.get("user"),
-      Cookies.get("role")
-    );
-    console.log("hello");
     setLoading(true);
     const token = Cookies.get("token");
     const user = Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null;
@@ -98,6 +97,45 @@ const TeacherDashboard = () => {
     }
   };
 
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const token = Cookies.get("token");
+    console.log("Form submitted");
+    const response = await fetch("http://localhost:8000/teacher/createcourse", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        course_name: formData.course_name,
+        course_description: formData.course_description,
+      }),
+    });
+    if (response.ok) {
+      const responseData = await response.json();
+      setCourse(responseData.data);
+      setLoading(false);
+      setModal(false);
+      setFormData({
+        course_name: "",
+        course_description: "",
+      });
+      setMessage(responseData.message);
+    } else {
+      setLoading(false);
+      console.error("Error creating course:", response.statusText);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <TeacherSidebar />
@@ -108,7 +146,10 @@ const TeacherDashboard = () => {
           <h1 className="text-2xl font-semibold">
             Welcome Back, {user ? user.firstName : "Teacher"}!
           </h1>
-          <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md flex items-center gap-2">
+          <button
+            onClick={() => setModal(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md flex items-center gap-2"
+          >
             <FaPlus />
             <span>Create New Course</span>
           </button>
@@ -161,6 +202,87 @@ const TeacherDashboard = () => {
           )}
         </div>
       </div>
+      {modal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-6">Create New Course</h2>
+            <form onSubmit={handleFormSubmit}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Course Title
+                  </label>
+                  <input
+                    type="text"
+                    name="course_name"
+                    onChange={handleChange}
+                    value={formData.course_name}
+                    required
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    name="course_description"
+                    onChange={handleChange}
+                    value={formData.course_description}
+                    required
+                    rows="3"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+
+                {/*<div>
+                  <label className="block text-sm font-medium mb-1">
+                    Upload Thumbnail
+                  </label>
+                  <input
+                    type="file"
+                    required
+                    className="w-full px-4 py-2 border rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                </div> */}
+
+                {/* <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Status (optional)
+                  </label>
+                  <select
+                    name="status"
+                    required
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  >
+                    <option value="Pending" selected>
+                      Pending
+                    </option>
+                    <option value="Active">Active</option>
+                  </select>
+                </div> */}
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setModal(false)}
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                >
+                  Create Course
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

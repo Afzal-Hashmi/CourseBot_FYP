@@ -1,5 +1,7 @@
 from fastapi import Depends, HTTPException , status
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from ..schemas.teacherSchema import course_schema
 from ..config.connection import get_db
 from ..repo.TeacherRepo import TeacherRepository
 
@@ -25,3 +27,16 @@ class TeacherService:
         except Exception as e:
             print(f"Error deleting course: {e}")
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error deleting course")
+    
+    async def create_course_service(self,form_Data: course_schema, current_user:dict):
+        try:
+            response = await self.teacher_repo.create_course_repo(form_Data,current_user)
+            if response:
+                response = await self.fetch_courses_service(current_user)
+                return response
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Course Not Created")
+        except Exception as e:
+            print(f"Error creating course: {e}")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error creating course") 
+
+        
