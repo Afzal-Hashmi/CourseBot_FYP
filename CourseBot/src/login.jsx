@@ -41,15 +41,15 @@ export default function Login() {
         // Redirect based on role
         Cookies.set("token", data.data.token, {
           path: "/",
-          expires: 10 / 1440,
+          expires: 30 / 1440,
         });
         Cookies.set("user", JSON.stringify(data.data), {
           path: "/",
-          expires: 10 / 1440,
+          expires: 30 / 1440,
         });
         Cookies.set("role", data.data.roles, {
           path: "/",
-          expires: 10 / 1440,
+          expires: 30 / 1440,
         });
         if (data.data.roles == "teacher") {
           navigate("/teacher/dashboard");
