@@ -14,8 +14,15 @@ import {
   FaUsers,
 } from "react-icons/fa";
 
+import Cookie from "js-cookie";
+import { Link } from "react-router-dom";
 const CourseContentPage = () => {
   const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    type: "",
+    file: null,
+  });
   const [contentItems, setContentItems] = useState([
     {
       id: 1,
@@ -55,11 +62,78 @@ const CourseContentPage = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  // useEffect(() => {
+  //   const token = Cookie.get("token");
+
+  // }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add content creation logic here
+    const token = Cookie.get("token");
+    let formDataCopy = new FormData();
+    formDataCopy.append("content_title", formData.title);
+    formDataCopy.append("course_type", formData.type);
+    formDataCopy.append("file", formData.file);
+    const response = await fetch("http://localhost:8000/teacher/upoadcontent", {
+      method: "POST",
+      headers: {
+        // accept: "application/json",
+        Authorization: `Bearer ${token}`,
+        // "Content-Type": "multipart/form-data",
+      },
+      // body: JSON.stringify({
+      //   content_title: formData.title,
+      //   course_type: formData.type,
+      //   file: formData.file,
+      // }),
+      body: formDataCopy,
+    });
+    if (!response.ok) {
+      alert("Failed to publish content. Please try again.");
+      return;
+    }
+    const data = await response.json();
+    console.log("Content published successfully:", data);
+    // Add new content item to the state
+    // Assuming the response contains the new content item
+    // If the response does not contain the new item, you can create it manually
+    // For simplicity, we will create a new item manually here
+    // You can modify this part to use the response data if needed
+    // if (!formData.title || !formData.type || !formData.file) {
+    //   alert("Please fill in all fields before publishing.");
+    //   return;
+    // }
+    // if (!["pdf", "video", "code_package", "quiz", "other_resource"].includes(formData.type.toLowerCase())) {
+    //   alert("Invalid content type. Please select a valid type.");
+    //   return;
+    // }
+    // if (!formData.file) {
+    //   alert("Please upload a file before publishing.");
+    //   return;
+    // }
+    // // Create a new content item
+    // // Here we assume the new content item has an ID one greater than the current length
+    // // of contentItems. Adjust this logic as needed based on your backend response.
+    // if (contentItems.some(item => item.title === formData.title && item.type === formData.type.toLowerCase().replace(" ", "_"))) {
+    //   alert("Content with the same title and type already exists.");
+    //   return;
+    // }
+    const newContent = {
+      id: contentItems.length + 1,
+      title: formData.title,
+      type: formData.type.toLowerCase().replace(" ", "_"),
+      views: 0,
+      downloads: 0,
+      duration: null,
+      attempts: null,
+      avgScore: null,
+    };
+    setContentItems([...contentItems, newContent]);
+    setFormData({ title: "", type: "", file: null });
+    alert(
+      `Content published successfully! ${formData.title},${formData.type},${formData.file} has been added.`
+    );
     setShowModal(false);
-    alert("Content published successfully!");
   };
 
   return (
@@ -67,10 +141,12 @@ const CourseContentPage = () => {
       {/* Sidebar */}
       <div className="w-72 bg-[#2c3e50] text-white fixed h-full p-6 shadow-xl">
         <div className="sidebar-header pb-4 border-b border-white/10">
-          <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
-            <FaChalkboardTeacher />
-            <span>Content</span>
-          </h2>
+          <Link to="/teacher/dashboard" className="block ">
+            <h2 className="text-xl font-semibold flex items-center gap-2 mb-4 cursor-pointer hover:text-cyan-50">
+              <FaChalkboardTeacher />
+              <span>Content</span>
+            </h2>
+          </Link>
           <button
             onClick={() => setShowModal(true)}
             className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg flex items-center gap-2 transition-all"
@@ -211,17 +287,10 @@ const CourseContentPage = () => {
                   <input
                     type="text"
                     required
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    required
-                    rows="3"
+                    value={formData.title}
+                    onChange={(e) =>
+                      setFormData({ ...formData, title: e.target.value })
+                    }
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
@@ -232,14 +301,16 @@ const CourseContentPage = () => {
                   </label>
                   <select
                     required
+                    value={formData.type}
+                    onChange={(e) =>
+                      setFormData({ ...formData, type: e.target.value })
+                    }
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   >
                     <option value="">Select Type</option>
-                    <option>PDF Document</option>
-                    <option>Video Lecture</option>
-                    <option>Code Package</option>
-                    <option>Quiz/Assignment</option>
-                    <option>Other Resource</option>
+                    <option value={"pdf"}>PDF Document</option>
+                    <option value={"video"}>Video Lecture</option>
+                    <option value={"quiz"}>Quiz/Assignment</option>
                   </select>
                 </div>
 
@@ -250,17 +321,10 @@ const CourseContentPage = () => {
                   <input
                     type="file"
                     required
+                    onChange={(e) =>
+                      setFormData({ ...formData, file: e.target.files[0] })
+                    }
                     className="w-full px-4 py-2 border rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Due Date (optional)
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
               </div>
