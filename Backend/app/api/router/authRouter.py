@@ -23,5 +23,4 @@ async def teacherSignupRoute(
 
 @authRouter.post("/login")
 async def login(userData: OAuth2PasswordRequestForm = Depends(), controller: UserController = Depends(UserController)):
-    print("Login route called")
     return await controller.login_user_controller(userData)

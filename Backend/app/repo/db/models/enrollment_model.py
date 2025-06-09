@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.repo.db.base import Base
 from datetime import datetime
@@ -15,3 +15,7 @@ class Enrollment(Base):
 
     student = relationship("User", back_populates="enrollments")
     courses = relationship("Course", back_populates="enrollments")
+
+    __table_args__ = (
+        UniqueConstraint('student_id', 'course_id', name='uq_student_course'),
+    )

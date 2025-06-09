@@ -1,8 +1,8 @@
-"""Initial
+"""Initial commit
 
-Revision ID: a74d6c1dcbbe
+Revision ID: cb2883dabbf6
 Revises: 
-Create Date: 2025-05-15 01:02:29.032673
+Create Date: 2025-06-09 19:27:17.318393
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'a74d6c1dcbbe'
+revision: str = 'cb2883dabbf6'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -73,7 +73,8 @@ def upgrade() -> None:
     sa.Column('course_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['course_id'], ['courses.course_id'], ),
     sa.ForeignKeyConstraint(['student_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('enrollment_id')
+    sa.PrimaryKeyConstraint('enrollment_id'),
+    sa.UniqueConstraint('student_id', 'course_id', name='uq_student_course')
     )
     # ### end Alembic commands ###
 

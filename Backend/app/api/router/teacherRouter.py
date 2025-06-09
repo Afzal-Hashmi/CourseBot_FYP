@@ -17,7 +17,6 @@ async def fetch_courses_router(current_user: dict= Depends(get_current_user), te
                 'httpStatusCode': status.HTTP_401_UNAUTHORIZED
             }
         )
-    print("Current User: ", current_user)
     return await teacher_controller.fetch_courses_controller(current_user)
 
 @teacherRouter.delete("/teacher/deletecourse/{course_id}")

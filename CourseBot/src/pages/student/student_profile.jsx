@@ -1,16 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  FaRobot,
-  FaHome,
-  FaBookOpen,
-  FaUsers,
-  FaCog,
-  FaSignOutAlt,
-  FaCamera,
-  FaUserEdit,
-  FaLock,
-  FaEye,
-} from "react-icons/fa";
+import { FaCamera, FaUserEdit, FaLock, FaEye } from "react-icons/fa";
 import StudentSidebar from "./student_sidebar";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
@@ -24,8 +13,6 @@ const StudentProfile = () => {
     const role = Cookies.get("role");
     const user = Cookies.get("user");
     if (!token || role !== "student") {
-      // Redirect to login page if not authenticated
-      console.log("Redirecting to login page...");
       navigate("/");
     }
     setUser(JSON.parse(user));
@@ -43,17 +30,6 @@ const StudentProfile = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log("Form submitted with values:", user);
-    // You can send the updated user data to your backend API
-    // using fetch or axios
-    // Example:
-    // fetch("/api/update-profile", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(user),
   };
   const handleChange = (e) => {
     const { name, value } = e.target;

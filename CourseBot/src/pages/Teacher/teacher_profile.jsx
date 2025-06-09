@@ -31,8 +31,6 @@ const TeacherProfile = () => {
     const role = Cookies.get("role");
     const user = Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null;
     if (!token || role !== "teacher") {
-      // Redirect to login page if not authenticated
-      console.log("Redirecting to login page...");
       navigate("/");
     }
     setUser(user);
@@ -56,7 +54,6 @@ const TeacherProfile = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission logic here
-    console.log("Form submitted with values:", updateProfile);
     // You can send the updated user data to your backend API
     // using fetch or axios
     // Example:

@@ -184,7 +184,7 @@ const TeacherSignUp = () => {
 
           <p className="text-center mt-6">
             Already have an account?{" "}
-            <a href="/login" className="text-[#3498db] font-semibold">
+            <a href="/" className="text-[#3498db] font-semibold">
               Log In
             </a>
           </p>

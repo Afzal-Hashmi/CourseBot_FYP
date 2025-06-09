@@ -73,7 +73,6 @@ const TeacherDashboard = () => {
 
   const handleDelete = async (courseId) => {
     setLoading(true);
-    console.log("Delete course", courseId);
     const response = await fetch(
       `http://localhost:8000/teacher/deletecourse/${courseId}`,
       {
@@ -87,9 +86,7 @@ const TeacherDashboard = () => {
 
     if (response.ok) {
       const responseData = await response.json();
-      console.log("Response Data:", responseData);
       setCourse(responseData.data);
-      console.log("Course deleted successfully");
       setLoading(false);
     } else {
       setLoading(false);
@@ -107,7 +104,6 @@ const TeacherDashboard = () => {
     e.preventDefault();
     setLoading(true);
     const token = Cookies.get("token");
-    console.log("Form submitted");
     const response = await fetch("http://localhost:8000/teacher/createcourse", {
       method: "POST",
       headers: {
