@@ -32,13 +32,7 @@ export default function Login() {
       });
 
       const data = await response.json();
-      console.log("Login response:", data.data.roles);
       if (data.succeeded) {
-        // Store token and user data (optional)
-
-        // localStorage.setItem("user", JSON.stringify(data.data));
-
-        // Redirect based on role
         Cookies.set("token", data.data.token, {
           path: "/",
           expires: 30 / 1440,
@@ -153,6 +147,15 @@ export default function Login() {
               className="w-full bg-[#3498db] text-white py-3 rounded font-semibold"
             >
               {loading ? "Logging in..." : "Login"}
+            </button>
+
+            <button class="w-1/2 flex items-center justify-center ml-auto mr-auto gap-2 border py-2 rounded hover:bg-gray-50">
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQG5FqrS9OkN5XrA5_GXcN7OV-SoLIl0KPwoQ&s"
+                alt="Google"
+                class="h-5"
+              />
+              Continue with Google
             </button>
 
             <div className="text-center mt-4">

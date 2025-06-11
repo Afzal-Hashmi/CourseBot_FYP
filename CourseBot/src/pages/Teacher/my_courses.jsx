@@ -22,7 +22,6 @@ const MyCourses = () => {
     const token = Cookies.get("token");
     const role = Cookies.get("role");
     const user = Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null;
-    console.log(`Bearer ${token}`);
     if (!token || !role == "teacher") {
       navigate("/");
     } else {
@@ -38,12 +37,9 @@ const MyCourses = () => {
               },
             }
           );
-          console.log("Response:", response);
           if (response.ok) {
             const responseData = await response.json();
-            console.log("Response Data:", responseData);
             setCourse(responseData.data);
-            console.log(course);
             setLoading(false);
           } else {
             console.error("Error fetching courses:");
@@ -54,52 +50,12 @@ const MyCourses = () => {
     }
   }, []);
 
-  // const courses = [
-  //   {
-  //     id: 1,
-  //     name: "Web Development Fundamentals",
-  //     status: "published",
-  //     students: 45,
-  //     rating: 4.8,
-  //     reviews: 28,
-  //     lastUpdated: "2 days ago",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Python Programming Basics",
-  //     status: "draft",
-  //     students: 0,
-  //     rating: null,
-  //     reviews: 0,
-  //     lastUpdated: "1 week ago",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Mobile App Development",
-  //     status: "published",
-  //     students: 28,
-  //     rating: 4.5,
-  //     reviews: 15,
-  //     lastUpdated: "3 days ago",
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "Data Science Fundamentals",
-  //     status: "published",
-  //     students: 62,
-  //     rating: 4.7,
-  //     reviews: 34,
-  //     lastUpdated: "5 days ago",
-  //   },
-  // ];
-
   const handleEdit = (courseId) => {
     console.log("Edit course", courseId);
   };
 
   const handleDelete = async (courseId) => {
     setLoading(true);
-    console.log("Delete course", courseId);
     const response = await fetch(
       `http://localhost:8000/teacher/deletecourse/${courseId}`,
       {
@@ -113,9 +69,7 @@ const MyCourses = () => {
 
     if (response.ok) {
       const responseData = await response.json();
-      console.log("Response Data:", responseData);
       setCourse(responseData.data);
-      console.log("Course deleted successfully");
       setLoading(false);
     } else {
       setLoading(false);

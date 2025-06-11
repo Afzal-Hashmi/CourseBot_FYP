@@ -39,12 +39,10 @@ const StudentSignUp = () => {
     setError("");
     setSuccess("");
 
-    console.log("Form Data:", formData);
     if (!validateForm()) return;
 
     setLoading(true);
     try {
-      console.log("Form Data:", formData);
       const response = await fetch("http://127.0.0.1:8000/student-signup", {
         method: "POST",
         headers: {
@@ -185,7 +183,7 @@ const StudentSignUp = () => {
 
           <p className="text-center mt-6">
             Already have an account?{" "}
-            <a href="/login" className="text-[#3498db] font-semibold">
+            <a href="/" className="text-[#3498db] font-semibold">
               Log In
             </a>
           </p>

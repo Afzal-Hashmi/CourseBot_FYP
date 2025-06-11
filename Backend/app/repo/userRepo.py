@@ -36,19 +36,14 @@ class UserRepository:
         try:
             # session = get_db_connection()
             # db = session()
-            print(f"DB Instance Type: {type(self.db)}")
-
-            print("Fetching user by email:", email)
             result = await self.db.execute(
                 select(User).options(joinedload(User.roles)).where(User.email == email)
             )
-            print("Query executed successfully.",result)
             user = result.scalar_one_or_none()
 
             if user:
                 return user
             else:
-                print("User not found.")
                 return None
 
         except SQLAlchemyError as e:
