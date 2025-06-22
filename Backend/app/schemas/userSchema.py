@@ -12,10 +12,20 @@ class UserCreate(BaseModel):
     hashPassword: str | None = None
     salt: str | None = None
     roleId: Role | None = None
+    profilePicture: str | None = None
 
     class Config:
         from_attributes = True
 
+
+class UserSignupSchema(BaseModel):
+    firstName: str
+    lastName: str
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=50)
+
+    class Config:
+        from_attributes = True
 
 class UserSchema(BaseModel):
     id: int

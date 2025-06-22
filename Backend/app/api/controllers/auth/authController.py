@@ -3,13 +3,20 @@ from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from ....services.authServices import AuthService
 from app.schemas.userSchema import UserCreate, UserLoginSchema
-
+import cloudinary
+import cloudinary.uploader
 
 class UserController:
     def __init__(self,service: AuthService = Depends(AuthService)):
         self.user_service = service
 
-    async def signup_user_controller(self,userData: UserCreate, roleType: str):
+    async def signup_user_controller(self,userData: UserCreate, roleType: str, profileImage=None):
+        if profileImage:
+            upload_result = cloudinary.uploader.upload(profileImage.file, folder="profile_images")
+            userData.profilePicture = upload_result.get('secure_url')
+        else:
+            userData.profilePicture = None
+
         return await self.user_service.create_user_service(userData, role=roleType)
 
 

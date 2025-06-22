@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { FaRobot, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaRobot, FaEye, FaEyeSlash, FaUserCircle } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const TeacherSignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,10 +11,12 @@ const TeacherSignUp = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    profilePicture: null,
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -22,13 +25,47 @@ const TeacherSignUp = () => {
     });
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const validTypes = ["image/jpeg", "image/png", "image/gif"];
+      if (!validTypes.includes(file.type)) {
+        setError("Please upload a JPEG, PNG, or GIF image.");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Image size must be less than 5MB.");
+        return;
+      }
+      setFormData({ ...formData, profilePicture: file });
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setFormData({ ...formData, profilePicture: null });
+      setImagePreview(null);
+    }
+  };
+
   const validateForm = () => {
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
+      setError("Please fill in all required fields.");
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      setError("Please enter a valid email address.");
+      return false;
+    }
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setError("Passwords do not match.");
       return false;
     }
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError("Password must be at least 8 characters.");
       return false;
     }
     return true;
@@ -43,34 +80,35 @@ const TeacherSignUp = () => {
 
     setLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:8000/teacher-signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
+      const data = new FormData();
+      data.append("firstName", formData.firstName);
+      data.append("lastName", formData.lastName);
+      data.append("email", formData.email);
+      data.append("password", formData.password);
+      if (formData.profilePicture) {
+        data.append("profilePicture", formData.profilePicture);
       }
 
-      setSuccess(data.message);
-      // Reset form
+      const response = await fetch("http://127.0.0.1:8000/teacher-signup", {
+        method: "POST",
+        body: data,
+      });
+
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.message || "Registration failed");
+      }
+
+      setSuccess(responseData.message || "Registration successful!");
       setFormData({
         firstName: "",
         lastName: "",
         email: "",
         password: "",
         confirmPassword: "",
+        profilePicture: null,
       });
+      setImagePreview(null);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -79,34 +117,80 @@ const TeacherSignUp = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-sans">
       {/* Sidebar */}
-      <div className="md:w-2/5 bg-[#2c3e50] text-white p-8 flex flex-col">
-        <div className="text-2xl flex items-center gap-2 mb-12">
-          <FaRobot className="text-[#3498db] " /> CourseBot
+      <div className="md:w-1/3 bg-gradient-to-b from-gray-900 to-gray-700 text-white p-4 sm:p-6 md:p-8 flex flex-col justify-center shadow-md">
+        <div className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-extrabold tracking-tight mb-4 sm:mb-6 animate-fade">
+          <FaRobot className="text-blue-500" />
+          <span>CourseBot</span>
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">
-          Start Your Learning Journey
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-3 sm:mb-4 tracking-tight">
+          Start Your Teaching Journey
         </h1>
-        <p className="text-lg">
+        <p className="text-sm sm:text-base font-medium">
           Join Thousands of Students and Teachers <strong>Worldwide</strong>
         </p>
-        <h1 className="mt-6 text-4xl">
+        <h2 className="mt-4 sm:mt-6 text-lg sm:text-xl font-bold">
           Hello, <strong>Teachers</strong>! 🎓
-        </h1>
+        </h2>
       </div>
 
-      <div className="w-full md:w-3/5 p-8 md:p-16 flex flex-col justify-center">
-        <div className="max-w-md w-full mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+      {/* Main Content */}
+      <div className="md:w-2/3 p-4 sm:p-6 md:p-8 flex flex-col justify-center">
+        <div className="max-w-md mx-auto w-full animate-fade">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-3 sm:mb-4 tracking-tight">
             Create Account
           </h2>
 
-          {error && <div className="mb-4 text-red-500">{error}</div>}
-          {success && <div className="mb-4 text-green-500">{success}</div>}
+          {error && (
+            <div
+              className="mb-3 sm:mb-4 p-2 sm:p-3 rounded-xl bg-red-100 text-red-700 text-sm sm:text-base font-medium shadow-sm"
+              id="error-message"
+            >
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="mb-3 sm:mb-4 p-2 sm:p-3 rounded-xl bg-green-100 text-green-700 text-sm sm:text-base font-medium shadow-sm">
+              {success}
+            </div>
+          )}
 
-          <form onSubmit={handleSubmit}>
-            <div className="flex flex-col md:flex-row gap-4">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-3 sm:space-y-4"
+            aria-busy={loading}
+          >
+            {/* Profile Picture Upload */}
+            <div className="flex flex-col items-center mb-3 sm:mb-4">
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 mb-2 sm:mb-3">
+                {imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="Profile Preview"
+                    className="w-full h-full rounded-full object-cover border-2 border-gray-200 shadow-sm"
+                  />
+                ) : (
+                  <FaUserCircle className="w-full h-full text-gray-400" />
+                )}
+              </div>
+              <label className="w-full flex items-center justify-center px-3 sm:px-4 py-2 border-2 border-dashed border-gray-300 rounded-xl text-sm sm:text-base font-semibold text-gray-600 bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer">
+                <input
+                  type="file"
+                  name="profilePicture"
+                  accept="image/jpeg,image/png,image/gif"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  aria-label="Upload Profile Picture"
+                />
+                {imagePreview
+                  ? "Change Picture"
+                  : "Upload Profile Picture (Optional)"}
+              </label>
+            </div>
+
+            {/* Name Fields */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <input
                 type="text"
                 name="firstName"
@@ -114,7 +198,9 @@ const TeacherSignUp = () => {
                 value={formData.firstName}
                 onChange={handleInputChange}
                 required
-                className="w-full p-3 border-2 border-gray-300 rounded-md"
+                className="w-full p-2 sm:p-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base transition-all duration-200 placeholder-gray-400"
+                aria-label="First Name"
+                aria-describedby="error-message"
               />
               <input
                 type="text"
@@ -123,10 +209,13 @@ const TeacherSignUp = () => {
                 value={formData.lastName}
                 onChange={handleInputChange}
                 required
-                className="w-full p-3 border-2 border-gray-300 rounded-md"
+                className="w-full p-2 sm:p-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base transition-all duration-200 placeholder-gray-400"
+                aria-label="Last Name"
+                aria-describedby="error-message"
               />
             </div>
 
+            {/* Email */}
             <input
               type="email"
               name="email"
@@ -134,10 +223,13 @@ const TeacherSignUp = () => {
               value={formData.email}
               onChange={handleInputChange}
               required
-              className="w-full p-3 border-2 border-gray-300 rounded-md mt-3"
+              className="w-full p-2 sm:p-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base transition-all duration-200 placeholder-gray-400"
+              aria-label="Email Address"
+              aria-describedby="error-message"
             />
 
-            <div className="relative mt-3">
+            {/* Password */}
+            <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
@@ -145,17 +237,22 @@ const TeacherSignUp = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                className="w-full p-3 border-2 border-gray-300 rounded-md"
+                className="w-full p-2 sm:p-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base pr-8 sm:pr-10 transition-all duration-200 placeholder-gray-400"
+                aria-label="Password"
+                aria-describedby="error-message"
               />
-              <div
-                className="absolute top-1/2 right-4 transform -translate-y-1/2 cursor-pointer text-gray-500"
+              <button
+                type="button"
+                className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </div>
+                {showPassword ? <FaEyeSlash /> : <FaEye size={14} />}
+              </button>
             </div>
 
-            <div className="relative mt-3">
+            {/* Confirm Password */}
+            <div className="relative">
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 name="confirmPassword"
@@ -163,30 +260,58 @@ const TeacherSignUp = () => {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 required
-                className="w-full p-3 border-2 border-gray-300 rounded-md"
+                className="w-full p-2 sm:p-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base pr-8 sm:pr-10 transition-all duration-200 placeholder-gray-400"
+                aria-label="Confirm Password"
+                aria-describedby="error-message"
               />
-              <div
-                className="absolute top-1/2 right-4 transform -translate-y-1/2 cursor-pointer text-gray-500"
+              <button
+                type="button"
+                className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                aria-label={
+                  showConfirmPassword
+                    ? "Hide confirm password"
+                    : "Show confirm password"
+                }
               >
-                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-              </div>
+                {showConfirmPassword ? (
+                  <FaEyeSlash size={14} />
+                ) : (
+                  <FaEye size={14} />
+                )}
+              </button>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#3498db] text-white py-3 rounded-md text-lg mt-6 hover:opacity-90 transition-all disabled:opacity-50"
+              className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base shadow-md hover:from-blue-700 hover:to-indigo-700 hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              aria-label="Sign Up"
             >
-              {loading ? "Processing..." : "Sign Up"}
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Processing...
+                </>
+              ) : (
+                "Sign Up"
+              )}
             </button>
           </form>
 
-          <p className="text-center mt-6">
+          {/* Login Link */}
+          <p className="text-center mt-3 sm:mt-4 text-sm sm:text-base">
             Already have an account?{" "}
-            <a href="/" className="text-[#3498db] font-semibold">
+            <Link
+              to="/"
+              className="text-blue-600 hover:underline font-semibold"
+              aria-label="Log In"
+            >
               Log In
-            </a>
+            </Link>
           </p>
         </div>
       </div>

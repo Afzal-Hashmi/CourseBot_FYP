@@ -13,6 +13,7 @@ class User(Base):
     hashPassword = Column(String, nullable=False)
     salt = Column(String, nullable=False)
     roleId = Column(Integer, ForeignKey("roles.id"))
+    profilePicture = Column(String, nullable=True)
 
     roles = relationship("Role", back_populates="users")
     courses = relationship("Course", back_populates="teacher", cascade='all,delete-orphan')

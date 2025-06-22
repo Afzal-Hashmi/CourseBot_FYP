@@ -8,7 +8,9 @@ class CourseFeedback(Base):
     __tablename__ = "course_feedback"
 
     feedback_id = Column(Integer, primary_key=True)
-    feedback_text = Column(String, nullable=False)
+    feedback_text = Column(String, nullable=True)
+    rating = Column(Integer, nullable=False)
+
 
     student_id = Column(Integer, ForeignKey('users.id'))
     course_id = Column(Integer, ForeignKey('courses.course_id'))

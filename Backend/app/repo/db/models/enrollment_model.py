@@ -12,6 +12,7 @@ class Enrollment(Base):
 
     student_id = Column(Integer, ForeignKey('users.id'))
     course_id = Column(Integer, ForeignKey('courses.course_id'))
+    enrollment_status = Column(String, nullable=True, default='Enrolled')
 
     student = relationship("User", back_populates="enrollments")
     courses = relationship("Course", back_populates="enrollments")

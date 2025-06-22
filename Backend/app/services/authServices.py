@@ -85,6 +85,7 @@ class AuthService:
             "lastName": user.lastName,
             "email": user.email,
             "roles": user.roles.role,
+            "profilePicture": user.profilePicture if user.profilePicture else None,
         }
 
         user.update({'exp': datetime.utcnow() + timedelta(minutes=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")))})

@@ -13,6 +13,10 @@ import MyCourses from "./pages/Teacher/my_courses";
 import StudentsManagement from "./pages/Teacher/students_management";
 import TeacherProfile from "./pages/Teacher/teacher_profile";
 import CourseContentPage from "./pages/Teacher/teacher_ai";
+import CourseContentPageStudent from "./pages/student/student_ai";
+import Enroll from "./pages/student/student_enroll";
+import CourseFeedbackForm from "./pages/student/course_feedback_form";
+import Teacher_feedback from "./pages/Teacher/teacher_feedback";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -21,31 +25,28 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          {/* <Route path="/" element={<HomePage />} /> */}
           <Route path="/" element={<Login />} />
           <Route path="/student_signup" element={<StudentSignUpPage />} />
           <Route path="/teacher_signup" element={<TeacherSignUp />} />
-
           <Route path="/student/dashboard" element={<StudentDashboard />} />
           <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
-
           <Route path="/teacher/myCourses" element={<MyCourses />} />
           <Route path="/student/courses" element={<StudentCourses />} />
-
           <Route path="/student/enrollments" element={<MyEnrollments />} />
-
           <Route path="/teacher/profile" element={<TeacherProfile />} />
           <Route path="/student/profile" element={<StudentProfile />} />
-
+          <Route path="/student/enroll" element={<Enroll />} />
           <Route
             path="/teacher/students-management"
             element={<StudentsManagement />}
           />
-
           <Route path="/teacher/ai" element={<CourseContentPage />} />
-
-          {/* <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
-          <Route path="/student-dashboard" element={<StudentDashboard />} /> */}
+          <Route path="/student/feedback" element={<CourseFeedbackForm />} />
+          <Route path="/teacher/feedback" element={<Teacher_feedback />} />
+          <Route
+            path="/student/ai/:course_id"
+            element={<CourseContentPageStudent />}
+          />
         </Routes>
       </BrowserRouter>
     </>
