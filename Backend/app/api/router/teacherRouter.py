@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends,status, File, UploadFile
+from fastapi import APIRouter, Depends, Form, HTTPException,status, File, UploadFile
 from fastapi.responses import JSONResponse
 
 from ...schemas.teacherSchema import course_content_schema, course_schema
@@ -32,7 +32,12 @@ async def delete_course_router(course_id: int, current_user: dict= Depends(get_c
     return await teacher_controller.delete_course(course_id, current_user)
 
 @teacherRouter.post('/teacher/createcourse')
-async def create_course_router(form_Data:course_schema, current_user:dict =Depends(get_current_user), teacher_controller: TeacherController = Depends(TeacherController)):
+async def create_course_router(
+    form_Data: course_schema = Depends(course_schema.as_form), 
+    file: UploadFile = File(...), 
+    current_user:dict = Depends(get_current_user), 
+    teacher_controller: TeacherController = Depends(TeacherController)
+):
     if not current_user:
         return JSONResponse(
             content={
@@ -42,55 +47,70 @@ async def create_course_router(form_Data:course_schema, current_user:dict =Depen
             },
             status_code=status.HTTP_401_UNAUTHORIZED
         )
-    return await teacher_controller.create_course_controller(form_Data,current_user)
+    return await teacher_controller.create_course_controller(form_Data,current_user,file)
 
-# @teacherRouter.post('/teacher/upoadcontent')
-# async def upload_content_router(form_Data: course_content_schema = Depends(),file: UploadFile = File(...),current_user:dict =Depends(get_current_user), teacher_controller: TeacherController = Depends(TeacherController)):
-#     # if not current_user:
-#         print("///////////////////////////////////")
-#         print("Current User: ", current_user)
-#         print("Form Data: ", form_Data.model_dump())
-#         print("File: ", file.filename)
-#         print("File Content Type: ", file.content_type)
-#         print("File Size: ", file.file.readlines)  # This will give the size of the file in bytes
-#         print("File Content: ", file)  # Read first 100 bytes for debugging
-#         print("///////////////////////////////////")
-
-#         # return JSONResponse(
-#         #     content={
-#         #         "succeeded":False,
-#         #         'message': 'Authentication failed: Bearer <token> not found',
-#         #         'httpStatusCode': status.HTTP_401_UNAUTHORIZED
-#         #     },
-#         #     status_code=status.HTTP_401_UNAUTHORIZED
-#         # )
-#     # return await teacher_controller.upload_content_controller(form_Data,current_user)
-
-# @teacherRouter.post('/teacher/upoadcontent')
-# async def upload_content_router(
-#     form_Data: course_content_schema = Depends(course_content_schema.as_form),
-#     file: UploadFile = File(...),
-#     current_user: dict = Depends(get_current_user),
-#     # teacher_controller: TeacherController = Depends(TeacherController)
-# ):
-#     print("///////////////////////////////////")
-#     print("Current User: ", current_user)
-#     print("Form Data: ", form_Data.model_dump())
-#     print("File: ", file.filename)
-#     # print("File Content Type: ", file.content_type)
-#     print("///////////////////////////////////")
-
-#     return {"message": "Success"}
-
-
-@teacherRouter.post('/teacher/upoadcontent')
+@teacherRouter.post('/teacher/uploadcontent') 
 async def upload_content_router(
-    form_Data: course_content_schema = Depends(course_content_schema.as_form),
+    form_data: course_content_schema = Depends(course_content_schema.as_form),
     file: UploadFile = File(...),
-    current_user: dict = Depends(get_current_user),
     teacher_controller: TeacherController = Depends(TeacherController)
 ):
-    print('user', current_user)
-    print("Form Data:", form_Data)
-    print("File:", await file.read())
-    return {"message": "Success"}
+    try:
+        file.file.seek(0, 2)
+        file_size = file.file.tell()
+        file.file.seek(0)
+
+        valid_types = {
+            "pdf": ["application/pdf"],
+            "video": ["video/mp4", "video/quicktime", "video/webm"],
+            "quiz": ["application/vnd.openxmlformats-officedocument.wordprocessingml.document", 
+                    "application/pdf",
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+            "code": ["application/zip", "application/x-tar", "application/gzip"]
+        }
+        
+        if form_data.content_type in valid_types and file.content_type not in valid_types[form_data.content_type]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid file type for {form_data.content_type}. Expected: {valid_types[form_data.content_type]}"
+            )
+        
+        return await teacher_controller.upload_course_controller(form_data, file)
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+@teacherRouter.put('/teacher/editcourse/{course_id}')
+async def edit_course_router(
+    course_id: int, 
+    form_Data: dict, 
+    current_user: dict = Depends(get_current_user), 
+    teacher_controller: TeacherController = Depends(TeacherController)
+):
+    if not current_user:
+        return JSONResponse(
+            content={
+                "succeeded":False,
+                'message': 'Authentication failed: Bearer <token> not found',   
+                'httpStatusCode': status.HTTP_401_UNAUTHORIZED
+            },
+            status_code=status.HTTP_401_UNAUTHORIZED
+        )
+    return await teacher_controller.edit_course_controller(
+        course_id, form_Data, current_user
+)
+
+@teacherRouter.get('/teacher/feedback')
+async def fetch_feedback_router(current_user: dict = Depends(get_current_user), teacher_controller: TeacherController = Depends(TeacherController)):
+    if not current_user:
+        return JSONResponse(
+            content={
+                "succeeded": False,
+                'message': 'Authentication failed: Bearer <token> not found',
+                'httpStatusCode': status.HTTP_401_UNAUTHORIZED
+            }
+        )
+    return await teacher_controller.fetch_feedback_controller(current_user)

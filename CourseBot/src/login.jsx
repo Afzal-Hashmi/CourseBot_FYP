@@ -60,6 +60,9 @@ export default function Login() {
       setError("Something went wrong. Please try again later.");
     }
   };
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:8000/login";
+  };
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
@@ -149,15 +152,6 @@ export default function Login() {
               {loading ? "Logging in..." : "Login"}
             </button>
 
-            <button class="w-1/2 flex items-center justify-center ml-auto mr-auto gap-2 border py-2 rounded hover:bg-gray-50">
-              <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQG5FqrS9OkN5XrA5_GXcN7OV-SoLIl0KPwoQ&s"
-                alt="Google"
-                class="h-5"
-              />
-              Continue with Google
-            </button>
-
             <div className="text-center mt-4">
               Don't have an account?{" "}
               <Link to="/student_signup" className="text-[#3498db] font-bold">
@@ -165,6 +159,17 @@ export default function Login() {
               </Link>
             </div>
           </form>
+          <button
+            onClick={handleGoogleLogin}
+            className="w-1/2 flex items-center justify-center ml-auto mr-auto gap-2 border py-2 rounded hover:bg-gray-50"
+          >
+            <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQG5FqrS9OkN5XrA5_GXcN7OV-SoLIl0KPwoQ&s"
+              alt="Google"
+              class="h-5"
+            />
+            Continue with Google
+          </button>
 
           <div className="flex items-center gap-4 mt-8">
             <span>Follow Us:</span>

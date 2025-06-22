@@ -42,3 +42,20 @@ class StudentService:
         except Exception as e:
             print(f"Error unenrolling from course: {e}")
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error unenrolling from course")
+        
+    async def fetch_course_service(self, course_id: int):
+        try:
+            response = await self.student_repo.fetch_course_repo(course_id)
+            if not response:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
+            return response
+        except Exception as e:
+            print(f"Error fetching course: {e}")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error fetching course")
+    async def submit_feedback_service(self, course_id: int, feedback: dict, current_user: dict):
+        try:
+            response = await self.student_repo.submit_feedback_repo(course_id, feedback, current_user)
+            return response
+        except Exception as e:
+            print(f"Error submitting feedback: {e}")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error submitting feedback")

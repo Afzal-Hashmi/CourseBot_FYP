@@ -10,8 +10,10 @@ class Course(Base):
     course_id = Column(Integer, primary_key=True)
     course_name = Column(String, nullable=False)
     course_description = Column(String, nullable=False)
+    course_image = Column(String, nullable=True) 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    course_status = Column(String, nullable=True, default='Draft') 
     teacher_id = Column(Integer, ForeignKey('users.id'))
 
     teacher = relationship("User", back_populates="courses")
