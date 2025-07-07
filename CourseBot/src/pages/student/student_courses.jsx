@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import StudentSidebar from "./student_sidebar";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -116,11 +116,10 @@ const AvailableCourses = () => {
           {/* Message */}
           {message && (
             <div
-              className={`p-2 sm:p-3 rounded-xl mb-3 sm:mb-4 shadow-sm text-sm sm:text-base animate-fade ${
-                message.includes("success")
+              className={`p-2 sm:p-3 rounded-xl mb-3 sm:mb-4 shadow-sm text-sm sm:text-base animate-fade ${message.includes("success")
                   ? "bg-green-100 text-green-700 border border-green-200"
                   : "bg-red-100 text-red-700 border border-red-200"
-              }`}
+                }`}
             >
               {message}
             </div>

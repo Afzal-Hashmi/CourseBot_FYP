@@ -80,21 +80,19 @@ export default function Login() {
 
         <div className="mt-8">
           <button
-            className={`flex items-center gap-2 w-full p-4 border-2 rounded mb-2 transition-all ${
-              role === "student"
+            className={`flex items-center gap-2 w-full p-4 border-2 rounded mb-2 transition-all ${role === "student"
                 ? "bg-[#3498db] border-blue-500"
                 : "border-white"
-            } text-white`}
+              } text-white`}
             onClick={() => setRole("student")}
           >
             <FaUserGraduate /> STUDENT
           </button>
           <button
-            className={`flex items-center gap-2 w-full p-4 border-2 rounded transition-all ${
-              role === "teacher"
+            className={`flex items-center gap-2 w-full p-4 border-2 rounded transition-all ${role === "teacher"
                 ? "bg-[#3498db] border-blue-500"
                 : "border-white"
-            } text-white`}
+              } text-white`}
             onClick={() => setRole("teacher")}
           >
             <FaChalkboardTeacher /> TEACHER
