@@ -250,11 +250,10 @@ const CourseFeedbackForm = ({ courseId, courses, onClose }) => {
                     handleStarClick(star);
                   }
                 }}
-                className={`text-2xl transition-all duration-200 ${
-                  formData.rating >= star
-                    ? "text-yellow-400"
-                    : "text-gray-300 hover:text-yellow-500"
-                }`}
+                className={`text-2xl transition-all duration-200 ${formData.rating >= star
+                  ? "text-yellow-400"
+                  : "text-gray-300 hover:text-yellow-500"
+                  }`}
                 aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
                 role="radio"
                 aria-checked={formData.rating === star}
@@ -325,11 +324,10 @@ const CourseFeedbackForm = ({ courseId, courses, onClose }) => {
           <button
             type="submit"
             disabled={loading || (!courseId && !formData.course_id)}
-            className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl transition-all duration-200 text-sm hover:scale-105 ${
-              loading || (!courseId && !formData.course_id)
-                ? "opacity-50 cursor-not-allowed"
-                : ""
-            }`}
+            className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl transition-all duration-200 text-sm hover:scale-105 ${loading || (!courseId && !formData.course_id)
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+              }`}
             aria-label="Submit feedback"
             onKeyDown={handleKeyDown}
           >
@@ -678,8 +676,8 @@ const MyEnrollments = () => {
                           Enrolled:{" "}
                           {course.enrolled_at
                             ? new Date(course.enrolled_at).toLocaleDateString(
-                                "en-GB"
-                              )
+                              "en-GB"
+                            )
                             : "N/A"}
                         </span>
                       </p>
@@ -722,9 +720,8 @@ const MyEnrollments = () => {
             >
               <div
                 ref={modalRef}
-                className={`bg-white rounded-2xl p-6 w-full max-w-[90vw] sm:max-w-lg shadow-2xl ${
-                  modalOpen ? "animate-slide-up" : "animate-slide-down"
-                } overflow-y-auto max-h-[90vh]`}
+                className={`bg-white rounded-2xl p-6 w-full max-w-[90vw] sm:max-w-lg shadow-2xl ${modalOpen ? "animate-slide-up" : "animate-slide-down"
+                  } overflow-y-auto max-h-[90vh]`}
               >
                 <CourseFeedbackForm
                   courseId={selectedCourseId}

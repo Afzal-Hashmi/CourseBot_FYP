@@ -19,7 +19,6 @@ import CourseFeedbackForm from "./pages/student/course_feedback_form";
 import Teacher_feedback from "./pages/Teacher/teacher_feedback";
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     <>
@@ -40,8 +39,7 @@ function App() {
             path="/teacher/students-management"
             element={<StudentsManagement />}
           />
-          <Route path="/teacher/ai" element={<CourseContentPage />} />
-          <Route path="/student/feedback" element={<CourseFeedbackForm />} />
+          <Route path="/teacher/ai/:course_id" element={<CourseContentPage />} />
           <Route path="/teacher/feedback" element={<Teacher_feedback />} />
           <Route
             path="/student/ai/:course_id"

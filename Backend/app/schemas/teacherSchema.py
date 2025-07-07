@@ -26,14 +26,17 @@ class ContentType(str, Enum):
 class course_content_schema(BaseModel):
     content_title: str
     content_type: ContentType
+    course_id: int
 
     @classmethod
     def as_form(
         cls,
         content_title: str = Form(...),
-        content_type: ContentType = Form(...)
+        content_type: ContentType = Form(...),
+        course_id: int = Form(...)
     ):
         return cls(
             content_title=content_title,
-            content_type=content_type
+            content_type=content_type,
+            course_id=course_id
         )

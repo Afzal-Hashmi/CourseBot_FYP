@@ -145,6 +145,7 @@ const TeacherDashboard = () => {
         if (response.ok) {
           const data = await response.json();
           setFeedbackCount(data.data?.length || 0);
+          // setFeedbackCount(3);
         } else {
           console.error("Fetch Feedback Failed:", response.status);
           setFeedbackCount(0);
@@ -161,10 +162,10 @@ const TeacherDashboard = () => {
 
     // Debug card alignment
     const logCardHeights = () => {
-      document.querySelectorAll(".course-card").forEach((card, i) => {});
+      document.querySelectorAll(".course-card").forEach((card, i) => { });
     };
     setTimeout(logCardHeights, 1000); // Log after render
-  }, [navigate, courses]);
+  }, [navigate]);
 
   const navigateToAIScreen = (courseId) => {
     navigate(`/teacher/ai/${courseId}`);
@@ -251,10 +252,10 @@ const TeacherDashboard = () => {
         const courseDate = new Date(c.updated_at);
         return courseDate instanceof Date && !isNaN(courseDate)
           ? courseDate.toLocaleString("default", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            }) === day
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }) === day
           : false;
       }).length
   );
@@ -355,10 +356,10 @@ const TeacherDashboard = () => {
       const courseDate = new Date(c.updated_at);
       return courseDate instanceof Date && !isNaN(courseDate)
         ? courseDate.toLocaleString("default", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          }) === formattedDate
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }) === formattedDate
         : false;
     });
     return hasCourse ? (
@@ -455,11 +456,10 @@ const TeacherDashboard = () => {
 
           {message && (
             <div
-              className={`mb-6 p-4 rounded-xl shadow-sm animate-slide-up ${
-                message.includes("Failed")
-                  ? "bg-red-50 text-red-700 border border-red-100"
-                  : "bg-green-50 text-green-700 border border-green-100"
-              }`}
+              className={`mb-6 p-4 rounded-xl shadow-sm animate-slide-up ${message.includes("Failed")
+                ? "bg-red-50 text-red-700 border border-red-100"
+                : "bg-green-50 text-green-700 border border-green-100"
+                }`}
             >
               {message}
             </div>
@@ -515,9 +515,9 @@ const TeacherDashboard = () => {
             ) : courses.length > 0 ? (
               courses.map((c, index) => (
                 <div
-                  key={c.id}
+                  key={c.course_id}
                   className="bg-white p-5 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer course-card min-h-[400px] flex flex-col"
-                  onClick={() => navigateToAIScreen(c.id)}
+                  onClick={() => navigateToAIScreen(c.course_id)}
                 >
                   <div className="h-48 rounded-xl mb-3 overflow-hidden relative">
                     {c.course_image ? (

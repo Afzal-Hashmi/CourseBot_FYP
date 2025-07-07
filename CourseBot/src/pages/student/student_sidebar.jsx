@@ -61,12 +61,6 @@ const StudentSidebar = () => {
       icon: FaClipboardList,
     },
     { path: "/student/profile", label: "Profile", icon: FaCog },
-    {
-      path: `/student/feedback/`,
-      label: "Feedback",
-      icon: FaCommentAlt,
-      // disabled: !courseId,
-    },
   ];
 
   return (
@@ -82,9 +76,8 @@ const StudentSidebar = () => {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-64 sm:w-72 bg-gradient-to-b from-gray-900 to-gray-800 text-white transform ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 transition-transform duration-200 ease-in-out z-40 lg:z-0 lg:w-72 lg:shadow-lg animate-slide-in`}
+        className={`fixed top-0 left-0 h-full w-64 sm:w-72 bg-gradient-to-b from-gray-900 to-gray-800 text-white transform ${isOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0 transition-transform duration-200 ease-in-out z-40 lg:z-0 lg:w-72 lg:shadow-lg animate-slide-in`}
       >
         <div className="flex flex-col justify-between h-full px-4">
           <div>
@@ -103,13 +96,12 @@ const StudentSidebar = () => {
                           setIsOpen(false);
                         }
                       }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 ${
-                        location.pathname === item.path && !item.disabled
-                          ? "bg-gray-700/50 text-blue-500"
-                          : item.disabled
+                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 ${location.pathname === item.path && !item.disabled
+                        ? "bg-gray-700/50 text-blue-500"
+                        : item.disabled
                           ? "text-gray-400 opacity-50 cursor-not-allowed"
                           : "text-gray-200 hover:bg-gray-700/50 hover:text-blue-400"
-                      }`}
+                        }`}
                       aria-label={`Navigate to ${item.label}`}
                       disabled={item.disabled}
                       title={
