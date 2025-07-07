@@ -1,4 +1,4 @@
-from io import BytesIO
+import io
 from PyPDF2 import PdfReader
 from fastapi import APIRouter, HTTPException, UploadFile,status, Depends
 from fastapi.responses import JSONResponse
@@ -411,7 +411,6 @@ class TeacherController:
             for feedback in response:
                 print(feedback.get('student_email'))
             response = [{
-                # 'course_id':feedback.course_id,
                         'course_name':feedback.get('course_name'),
                         'feedback': feedback.get('feedback_text'),
                         'rating': feedback.get('rating'),
@@ -446,6 +445,218 @@ class TeacherController:
                 content={
                     "succeeded": False,
                     "message": "Error fetching feedback",
+                    "data": [],
+                    "httpStatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                },
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+    async def upload_content_controller(self, form_data: course_content_schema, file: UploadFile, current_user:dict):
+        cloudinary_url = None
+        cloudinary_public_id = None
+        
+        try:
+            if not file:
+                raise HTTPException(status_code=400, detail='No file uploaded')
+            
+            file_content = await file.read()
+            if not file_content:
+                raise HTTPException(status_code=400, detail='File is empty')
+            
+            print("Uploading file to Cloudinary...")
+            result = cloudinary.uploader.upload(
+                file_content,
+                resource_type='auto', 
+                public_id=form_data.content_title.strip().replace(" ", "_"),
+            )
+            cloudinary_url = result['secure_url']
+            cloudinary_public_id = result.get('public_id')
+            print("File uploaded to Cloudinary:", cloudinary_url)
+
+            file.file = io.BytesIO(file_content)
+            
+            response = await self.teacher_service.upload_content_service(form_data, file, current_user, cloudinary_url)
+            
+            return response
+            
+        except HTTPException:
+            # Cleanup Cloudinary on failure
+            if cloudinary_public_id:
+                try:
+                    cloudinary.uploader.destroy(cloudinary_public_id)
+                    print(f"Cleaned up Cloudinary file: {cloudinary_public_id}")
+                except Exception as cleanup_error:
+                    print(f"Failed to cleanup Cloudinary: {cleanup_error}")
+            raise
+        except Exception as e:
+            # Cleanup Cloudinary on failure
+            if cloudinary_public_id:
+                try:
+                    cloudinary.uploader.destroy(cloudinary_public_id)
+                except:
+                    pass
+            print(f"Error uploading content: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error uploading content"
+            )
+    async def get_content_controller(self, content_id: int):
+        try:
+            response = await self.teacher_service.get_content_service(content_id)
+            if not response:
+                return JSONResponse(
+                    content={
+                        "succeeded": False,
+                        "message": "Content not found",
+                        "data": [],
+                        "httpStatusCode": status.HTTP_404_NOT_FOUND,
+                    },
+                    status_code=status.HTTP_404_NOT_FOUND,
+                )
+            
+            response = [{
+                'content_id': content.content_id,
+                'content_title': content.title,
+                'content_type': content.content_type,
+                'content_url': content.content_url,
+                'course_id': content.course_id,
+            } for content in response]
+
+            return JSONResponse(
+                content={
+                    "succeeded": True,
+                    "message": "Content fetched successfully",
+                    "data": response,
+                    "httpStatusCode": status.HTTP_200_OK,
+                },
+                status_code=status.HTTP_200_OK,
+            )
+        except HTTPException as e:
+            return JSONResponse(
+                content={
+                    "succeeded": False,
+                    "message": e.detail,
+                    "data": [],
+                    "httpStatusCode": e.status_code,
+                },
+                status_code=e.status_code,
+            )
+        except Exception as e:
+            print(f"Error fetching content: {e}")
+            return JSONResponse(
+                content={
+                    "succeeded": False,
+                    "message": "Error fetching content",
+                    "data": [],
+                    "httpStatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                },
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+    async def delete_content_controller(self,content_id:int, current_user:dict):
+        try:
+            response = await self.teacher_service.delete_content_service(content_id,current_user)
+            print("controller",response)
+            if not response:
+                return JSONResponse(
+                    content={
+                        "succeeded": False,
+                        "message": "Content not found",
+                        "data": [],
+                        "httpStatusCode": status.HTTP_404_NOT_FOUND,
+                    },
+                    status_code=status.HTTP_404_NOT_FOUND,
+                )
+
+            return JSONResponse(
+                content={
+                    "succeeded": True,
+                    "message": "Content Deleted successfully",
+                    "data": response,
+                    "httpStatusCode": status.HTTP_200_OK,
+                },
+                status_code=status.HTTP_200_OK,
+            )
+        except HTTPException as e:
+            return JSONResponse(
+                content={
+                    "succeeded": False,
+                    "message": e.detail,
+                    "data": [],
+                    "httpStatusCode": e.status_code,
+                },
+                status_code=e.status_code,
+            )
+        except Exception as e:
+            print(f"Error Deleting content: {e}")
+            return JSONResponse(
+                content={
+                    "succeeded": False,
+                    "message": "Error Deleting content",
+                    "data": [],
+                    "httpStatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                },
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        
+    async def save_chat_id(self,payload:str,chat_id:str,course_id:int,current_user:dict):
+        await self.teacher_service.save_chat_id_service(payload,chat_id,course_id,current_user)
+    
+    async def get_chat_id(self,course_id:int,current_user:dict):
+       chats = await self.teacher_service.get_chat_id_service(course_id,current_user)
+       formatted_chats = []
+       for chat in chats:
+            formatted_chats.append({
+                "chat_id": chat.chat_id,
+                "title": chat.chat_title,
+                "date": chat.created_at,
+            })
+            
+       return {"chats": formatted_chats}
+    async def get_students_controller(self, current_user: dict):
+        try:
+            response = await self.teacher_service.get_students_service(current_user)
+            if len(response)==0:
+                return JSONResponse(
+                    content={
+                        "succeeded": True,
+                        "message": "No Enrollment found.",
+                        "data": [],
+                        "httpStatusCode": status.HTTP_200_OK,
+                    },
+                    status_code=status.HTTP_200_OK,
+                )
+            response = [{'student_firstname':student.User.firstName,
+                        'course_name':student.Course.course_name,
+                        'course_id':student.Course.course_id,
+                        'student_lastname': student.User.lastName,
+                        'student_email': student.User.email,
+                        'enrollment_id':student.Enrollment.enrollment_id
+                        }
+                        for student in response]
+            return JSONResponse(
+                content={
+                    "succeeded": True,
+                    "message": "Students fetched successfully",
+                    "data": response,
+                    "httpStatusCode": status.HTTP_200_OK,
+                    },
+                    status_code=status.HTTP_200_OK,
+                )
+        except HTTPException as e:
+            return JSONResponse(
+                content={
+                    "succeeded": False,
+                    "message": e.detail,
+                    "data": [],
+                    "httpStatusCode": e.status_code,
+                },
+                status_code=e.status_code,
+            )
+        except Exception as e:
+            print(f"Error deleting course: {e}")
+            return JSONResponse(
+                content={
+                    "succeeded": False,
+                    "message": "Error fetching Students enrolled in this course",
                     "data": [],
                     "httpStatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
                 },
