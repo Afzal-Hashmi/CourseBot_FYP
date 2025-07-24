@@ -1,18 +1,10 @@
 import React, { useState } from "react";
-import {
-  FaRobot,
-  FaUserGraduate,
-  FaChalkboardTeacher,
-  FaFacebook,
-  FaTwitter,
-  FaLinkedin,
-} from "react-icons/fa";
+import { FaRobot, FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import "./index.css";
 import Cookies from "js-cookie";
 
 export default function Login() {
-  const [role, setRole] = useState("student");
   const [username, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -41,145 +33,130 @@ export default function Login() {
           path: "/",
           expires: 30 / 1440,
         });
-        Cookies.set("role", data.data.roles, {
-          path: "/",
-          expires: 30 / 1440,
-        });
-        if (data.data.roles == "teacher") {
-          navigate("/teacher/dashboard");
-        } else {
-          navigate("/student/dashboard");
-        }
+        Cookies.set("role", data.data.roles, { path: "/", expires: 30 / 1440 });
+
+        navigate(
+          data.data.roles === "teacher"
+            ? "/teacher/dashboard"
+            : "/student/dashboard"
+        );
       } else {
         setLoading(false);
         setError(data.message || "Login failed. Please try again.");
       }
     } catch (err) {
       setLoading(false);
-      console.error("Login error:", err);
       setError("Something went wrong. Please try again later.");
     }
   };
+
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:8000/login";
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100 font-sans">
       {/* Sidebar */}
-      <div className="md:w-2/5 bg-[#2c3e50] text-white p-8 flex flex-col">
-        <div className="text-2xl flex items-center gap-2 mb-12">
-          <FaRobot className="text-blue-400" /> CourseBot
+      <div className="md:w-2/5 bg-[#1B2430] text-white p-10 flex flex-col justify-between shadow-xl">
+        <div>
+          <div className="text-3xl flex items-center gap-2 mb-10 font-bold tracking-wide">
+            <FaRobot className="text-[#1d72b8]" /> CourseBot
+          </div>
+          <h1 className="text-4xl font-extrabold mb-4 leading-snug">
+            Learn Smarter, Not Harder.
+          </h1>
+          <p className="text-lg text-gray-300 leading-relaxed">
+            Personalized learning with the power of AI.
+            <br />
+            Your journey starts here.
+          </p>
         </div>
-        <h1 className="text-4xl font-bold mb-4">
-          Customize Your Learning Experience
-        </h1>
-        <p className="text-lg">
-          Making Education Better <strong>Inside and Out</strong>
-        </p>
 
-        <div className="mt-8">
-          <button
-            className={`flex items-center gap-2 w-full p-4 border-2 rounded mb-2 transition-all ${role === "student"
-                ? "bg-[#3498db] border-blue-500"
-                : "border-white"
-              } text-white`}
-            onClick={() => setRole("student")}
-          >
-            <FaUserGraduate /> STUDENT
-          </button>
-          <button
-            className={`flex items-center gap-2 w-full p-4 border-2 rounded transition-all ${role === "teacher"
-                ? "bg-[#3498db] border-blue-500"
-                : "border-white"
-              } text-white`}
-            onClick={() => setRole("teacher")}
-          >
-            <FaChalkboardTeacher /> TEACHER
-          </button>
+        <div className="flex items-center gap-5 mt-10">
+          <span className="text-sm">Connect with us:</span>
+          <FaFacebook className="text-xl text-gray-400 hover:text-white cursor-pointer transition" />
+          <FaTwitter className="text-xl text-gray-400 hover:text-white cursor-pointer transition" />
+          <FaLinkedin className="text-xl text-gray-400 hover:text-white cursor-pointer transition" />
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="md:w-3/5 p-8 flex flex-col justify-center">
-        <div className="max-w-md mx-auto w-full">
-          <h2 className="text-3xl font-semibold mb-6">Sign In</h2>
+      {/* Main Login Form */}
+      <div className="md:w-3/5 p-10 flex items-center justify-center bg-white">
+        <div className="w-full max-w-md">
+          <h2 className="text-4xl font-bold mb-8 text-[#1B2430]">
+            Welcome Back
+          </h2>
+
           {error && (
-            <div className="mb-4 text-red-500 text-sm font-semibold">
-              {error}
-            </div>
+            <div className="mb-4 text-red-600 text-sm font-medium">{error}</div>
           )}
+
           <form
-            className="space-y-6"
             onSubmit={(e) => {
               e.preventDefault();
               handleLogin();
             }}
+            className="space-y-5"
           >
             <input
               type="email"
               placeholder="Email"
               value={username}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 border-2 border-gray-300 rounded"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1d72b8] focus:outline-none transition"
               required
             />
+
             <input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 border-2 border-gray-300 rounded"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1d72b8] focus:outline-none transition"
               required
             />
 
-            <div className="flex justify-between items-center text-sm">
+            <div className="flex justify-between text-sm text-gray-600">
               <label className="flex items-center gap-2">
                 <input type="checkbox" className="form-checkbox" />
-                Remember username
+                Remember me
               </label>
-              <a href="#" className="text-blue-500">
+              <a href="#" className="text-[#1d72b8] hover:underline">
                 Forgot Password?
               </a>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-[#3498db] text-white py-3 rounded font-semibold"
+              className="w-full bg-[#1d72b8] text-white py-3 rounded-md font-semibold shadow hover:bg-[#155a96] transition duration-300"
             >
               {loading ? "Logging in..." : "Login"}
             </button>
-
-            <div className="text-center mt-4">
-              Don't have an account?{" "}
-              <Link to="/student_signup" className="text-[#3498db] font-bold">
-                Sign Up
-              </Link>
-            </div>
           </form>
-          <button
-            onClick={handleGoogleLogin}
-            className="w-1/2 flex items-center justify-center ml-auto mr-auto gap-2 border py-2 rounded hover:bg-gray-50"
-          >
-            <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQG5FqrS9OkN5XrA5_GXcN7OV-SoLIl0KPwoQ&s"
-              alt="Google"
-              class="h-5"
-            />
-            Continue with Google
-          </button>
 
-          <div className="flex items-center gap-4 mt-8">
-            <span>Follow Us:</span>
-            <a href="#">
-              <FaFacebook className="text-xl text-gray-700" />
-            </a>
-            <a href="#">
-              <FaTwitter className="text-xl text-gray-700" />
-            </a>
-            <a href="#">
-              <FaLinkedin className="text-xl text-gray-700" />
-            </a>
+          <div className="mt-6 text-center text-sm text-gray-600">
+            Don't have an account?{" "}
+            <Link
+              to="/student_signup"
+              className="text-[#1d72b8] font-medium hover:underline"
+            >
+              Sign Up
+            </Link>
+          </div>
+
+          {/* Google Login */}
+          <div className="mt-6">
+            <button
+              onClick={handleGoogleLogin}
+              className="w-full flex items-center justify-center gap-3 border border-gray-300 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+            >
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQG5FqrS9OkN5XrA5_GXcN7OV-SoLIl0KPwoQ&s"
+                alt="Google"
+                className="h-5"
+              />
+              Continue with Google
+            </button>
           </div>
         </div>
       </div>
