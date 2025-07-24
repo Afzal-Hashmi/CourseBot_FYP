@@ -1,4 +1,5 @@
 # from fastapi import APIRouter, Depends, Form, HTTPException,status, File, UploadFile
+from typing import Dict
 import requests
 from fastapi.responses import JSONResponse
 import http.client
@@ -370,3 +371,27 @@ async def get_students_router(current_user:dict = Depends(get_current_user), tea
             }
         )
     return await teacher_controller.get_students_controller(current_user)
+
+
+
+@teacherRouter.put('/teacher/editprofile/{teacher_id}')
+async def edit_profile_router(
+    teacher_id: int, 
+    form_data: Dict, 
+    current_user: Dict = Depends(get_current_user), 
+    teacher_controller: TeacherController = Depends(TeacherController)
+):
+    if not current_user:
+        return JSONResponse(
+            content={
+                "succeeded": False,
+                "message": "Authentication failed: Bearer <token> not found",
+                "data": [],
+                "httpStatusCode": status.HTTP_401_UNAUTHORIZED
+            },
+            status_code=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    return await teacher_controller.edit_profile_controller(
+        teacher_id, form_data, current_user
+    )

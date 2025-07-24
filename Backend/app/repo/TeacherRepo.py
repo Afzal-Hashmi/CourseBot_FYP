@@ -360,3 +360,87 @@ class TeacherRepository:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Error fetching enrolled students"
             )
+            
+    async def update_teacher_info(self, teacher_id: int, update_data: dict, current_user: dict):
+        try:
+            # Verify the current user is the teacher they're trying to update
+            if str(current_user.get("id")) != str(teacher_id) or current_user.get("role") != "teacher":
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Not authorized to update this teacher's information"
+                )
+
+            result = await self.db.execute(
+                select(User)
+                .where(
+                    User.id == teacher_id,
+                    User.role == "teacher"
+                )
+            )
+            teacher = result.scalar_one_or_none()
+
+            if not teacher:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Teacher not found"
+                )
+
+            # Update fields from the update_data dict
+            for field, value in update_data.items():
+                if hasattr(teacher, field):
+                    setattr(teacher, field, value)
+
+            await self.db.commit()
+            await self.db.refresh(teacher)
+            return teacher
+
+        except SQLAlchemyError as e:
+            await self.db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Database error: {str(e)}"
+            )
+    
+    async def edit_profile_repo(self, teacher_id: int, form_data: dict, current_user: dict):
+        try:
+            # Verify the user exists and is the current user
+            user = await self.db.execute(
+                select(User).where(
+                    User.id == teacher_id,
+                    User.id == current_user.get("id")
+                )
+            )
+            user = user.scalar_one_or_none()
+
+            if not user:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User not found."
+                )
+
+            if "firstName" in form_data:
+                user.firstName = form_data["firstName"]
+            if "lastName" in form_data:
+                user.lastName = form_data["lastName"]
+            if "email" in form_data:
+                user.email = form_data["email"]
+
+            await self.db.commit()
+            await self.db.refresh(user)
+            return user
+
+        except SQLAlchemyError as e:
+            await self.db.rollback()
+            print(f"Database error: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error while updating profile."
+            )
+        except Exception as e:
+            await self.db.rollback()
+            print(f"Error while updating profile: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error while updating profile."
+            )
+    

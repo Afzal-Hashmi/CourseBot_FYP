@@ -212,8 +212,8 @@ class TeacherController:
             # 1. Extract PDF text first
             pdf_bytes = await file.read()
             text = ""
-
-            pdf_file = BytesIO(pdf_bytes)
+            # pdf_file = BytesIO(pdf_bytes)
+            pdf_file = io.BytesIO(pdf_bytes)
             pdf = PdfReader(pdf_file)
         
             for page in pdf.pages:
@@ -661,4 +661,84 @@ class TeacherController:
                     "httpStatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
                 },
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+            
+    async def edit_profile_controller(self, teacher_id: int, form_data: dict, current_user: dict):
+        try:
+            # Authorization check
+            if current_user.get("roles") != "teacher":
+                return JSONResponse(
+                    content={
+                        "succeeded": False,
+                        "message": "You are not authorized as a teacher",
+                        "data": [],
+                        "httpStatusCode": status.HTTP_401_UNAUTHORIZED
+                    },
+                    status_code=status.HTTP_401_UNAUTHORIZED
+                )
+            
+            # Verify user is editing their own profile
+            if str(current_user.get("id")) != str(teacher_id):
+                return JSONResponse(
+                    content={
+                        "succeeded": False,
+                        "message": "You can only edit your own profile",
+                        "data": [],
+                        "httpStatusCode": status.HTTP_403_FORBIDDEN
+                    },
+                    status_code=status.HTTP_403_FORBIDDEN
+                )
+
+            response = await self.teacher_service.edit_profile_service(teacher_id, form_data, current_user)
+            
+            if not response:
+                return JSONResponse(
+                    content={
+                        "succeeded": False,
+                        "message": "Profile not updated",
+                        "data": [],
+                        "httpStatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
+                    },
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
+            # Format response data
+            profile_data = {
+                "teacher_id": response.id,
+                "firstName": response.firstName,
+                "lastName": response.lastName,
+                "email": response.email,
+                # "updated_at": str(response.updated_at) if response.updated_at else None
+            }
+
+            return JSONResponse(
+                content={
+                    "succeeded": True,
+                    "message": "Profile updated successfully",
+                    "data": [profile_data],  # Wrapped in list to match your pattern
+                    "httpStatusCode": status.HTTP_200_OK
+                }
+            )
+
+        except HTTPException as e:
+            return JSONResponse(
+                content={
+                    "succeeded": False,
+                    "message": e.detail,
+                    "data": [],
+                    "httpStatusCode": e.status_code
+                },
+                status_code=e.status_code
+            )
+            
+        except Exception as e:
+            print(f"Error updating profile: {e}")
+            return JSONResponse(
+                content={
+                    "succeeded": False,
+                    "message": "Error updating profile",
+                    "data": [],
+                    "httpStatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
+                },
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

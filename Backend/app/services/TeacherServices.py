@@ -2,6 +2,7 @@ import datetime
 import http
 import json
 import os
+from typing import Any, Dict
 import uuid
 
 import urllib
@@ -189,5 +190,23 @@ class TeacherService:
         return await self.teacher_repo.get_chat_id_repo(course_id,current_user)
     async def get_students_service(self,current_user:dict):
         return await self.teacher_repo.get_students_repo(current_user)
+    async def edit_profile_service(self, teacher_id: int, form_data: dict, current_user: dict):
+        try:
+            response = await self.teacher_repo.edit_profile_repo(teacher_id, form_data, current_user)
+            if not response:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Profile not found"
+                )
+            return response
+        except HTTPException:
+            raise
+        except Exception as e:
+            print(f"Error editing profile: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error editing profile"
+            )
+        
 
 

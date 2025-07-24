@@ -93,8 +93,8 @@ posthog==5.4.0
 priority==2.0.0
 protobuf==5.29.5
 psycopg2-binary==2.9.10
-pyasn1==0.4.8
-pyasn1_modules==0.4.2
+# pyasn1==0.4.8
+# pyasn1_modules==0.4.2
 pybase64==1.4.1
 pycparser==2.22
 pydantic==2.8.2
@@ -147,7 +147,7 @@ typing_extensions==4.12.2
 ujson==5.10.0
 urllib3==2.4.0
 uvicorn==0.30.6
-uvloop==0.21.0
+# uvloop==0.21.0
 watchfiles==0.24.0
 websocket-client==1.8.0
 websockets==13.0.1
