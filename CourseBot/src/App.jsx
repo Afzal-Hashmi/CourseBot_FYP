@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Login from "./login";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
@@ -15,8 +14,8 @@ import TeacherProfile from "./pages/Teacher/teacher_profile";
 import CourseContentPage from "./pages/Teacher/teacher_ai";
 import CourseContentPageStudent from "./pages/student/student_ai";
 import Enroll from "./pages/student/student_enroll";
-import CourseFeedbackForm from "./pages/student/course_feedback_form";
 import Teacher_feedback from "./pages/Teacher/teacher_feedback";
+import GoogleSuccess from "./GoogleSuccess";
 
 function App() {
 
@@ -35,6 +34,8 @@ function App() {
           <Route path="/teacher/profile" element={<TeacherProfile />} />
           <Route path="/student/profile" element={<StudentProfile />} />
           <Route path="/student/enroll" element={<Enroll />} />
+          <Route path="/google/success" element={<GoogleSuccess />} />
+
           <Route
             path="/teacher/students-management"
             element={<StudentsManagement />}

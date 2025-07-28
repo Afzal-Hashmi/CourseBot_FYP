@@ -11,11 +11,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.utils.generateHash import generateHash, verifyHash
 
 # Schemas
-from app.schemas.userSchema import UserCreate, UserLoginSchema
+from app.schemas.userSchema import UserCreate, UserLoginSchema, UserPasswordResetSchema
 
 # Repo
 from app.repo.userRepo import UserRepository
-# from app.repo.userRepo import createUserRepo, getUserByEmail
 
 # OS
 import os
@@ -23,7 +22,7 @@ import os
 # Dotenv
 from dotenv import load_dotenv
 
-from jose import jwt, JWTError
+from jose import jwt
 
 from app.config.connection import get_db
 
@@ -98,3 +97,42 @@ class AuthService:
             )
         user = {**user, "token": token}
         return user
+    
+    async def user_exist_service(self,userEmail: str):
+
+        user = await self.user_repo.get_user_by_email_repo(userEmail)
+
+        if not user:
+            return False
+        return True
+    
+    async def reset_password_service(self, data: UserPasswordResetSchema, currentUser: dict):
+        try:
+            print("Reset Password Service Called", currentUser , data.currentPassword, data.newPassword)
+            if not currentUser:
+                raise HTTPException(status_code=401, detail="Unauthorized: User not found.")
+            user = await self.user_repo.get_user_by_email_repo(currentUser.get('email'))
+            if not user:
+                raise HTTPException(status_code=404, detail="User does not exist")
+
+            if not verifyHash(data.currentPassword, user.hashPassword, user.salt):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect Current Password"
+                )
+
+           
+            new_hash_password, new_salt = generateHash(data.newPassword)
+            updated_user = await self.user_repo.update_user_password_repo(currentUser.get('id'), new_hash_password, new_salt)
+
+            if not updated_user:
+                raise HTTPException(status_code=500, detail="Failed to update password.")
+
+            return True
+
+        except SQLAlchemyError as e:
+            print(f"Database error: {e}")
+            raise HTTPException(status_code=500, detail="Internal server error during password reset.")
+
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            raise HTTPException(status_code=500, detail="Internal server error during password reset.")

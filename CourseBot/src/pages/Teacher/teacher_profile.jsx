@@ -1,26 +1,20 @@
 import React, { useState, useEffect } from "react";
 import {
-  FaRobot,
-  FaHome,
-  FaBookOpen,
-  FaUsers,
-  FaCog,
-  FaSignOutAlt,
-  FaCamera,
   FaUserEdit,
   FaLock,
-  FaBell,
   FaEye,
   FaEyeSlash,
 } from "react-icons/fa";
-import TeacherSidebar from "./teacher_sidebar";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import TeacherSidebar from "./teacher_sidebar";
 
 const TeacherProfile = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [profileLoading, setprofileLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
   const navigate = useNavigate();
 
   const [user, setUser] = useState({
@@ -37,18 +31,10 @@ const TeacherProfile = () => {
     confirmPassword: "",
   });
 
-  const [notificationPrefs, setNotificationPrefs] = useState({
-    courseUpdates: true,
-    enrollmentNotifications: true,
-    marketingCommunications: false,
-  });
 
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const token = Cookies.get("token");
-    const role = Cookies.get("role");
-
     try {
       const token = Cookies.get("token");
       const role = Cookies.get("role");
@@ -114,32 +100,10 @@ const TeacherProfile = () => {
     }));
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUser((prev) => ({
-          ...prev,
-          profileImage: reader.result,
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleNotificationChange = (e) => {
-    const { id, checked } = e.target;
-    setNotificationPrefs((prev) => ({
-      ...prev,
-      [id]: checked,
-    }));
-  };
-
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
-
+    setprofileLoading(true);
     const token = Cookies.get("token");
     const userId = user.id;
 
@@ -170,42 +134,71 @@ const TeacherProfile = () => {
       const responseData = await response.json();
 
       if (response.ok && responseData.succeeded) {
-        Cookies.set("user", JSON.stringify(responseData.data[0]));
+        Cookies.set("user", JSON.stringify(responseData.data), {
+          path: "/",
+          expires: 30 / 1440,
+        });
         setMessage(responseData.message || "Profile updated successfully.");
         setUser((prev) => ({
           ...prev,
-          firstName: responseData.data[0].firstName,
-          lastName: responseData.data[0].lastName,
-          email: responseData.data[0].email,
+          firstName: responseData.data.firstName,
+          lastName: responseData.data.lastName,
+          email: responseData.data.email,
         }));
+        setprofileLoading(false);
       } else {
         setMessage(responseData.message || "Failed to update profile.");
+        setprofileLoading(false);
       }
     } catch (error) {
       console.error("Error updating profile:", error);
       setMessage("An error occurred while updating profile. Please try again.");
+      setprofileLoading(false);
     }
   };
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
+    setPasswordLoading(true);
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setMessage("New password and confirm password do not match.");
       return;
     }
+    const token = Cookies.get("token");
+    const response = await fetch('http://127.0.0.1:8000/reset-password', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      }
+      )
+    })
 
-    setMessage("Password update submitted (API call needed).");
+    if (!response.ok) {
+      const updatedUser = await response.json();
+      setMessage(updatedUser.message || "Oops, we missed the password—try again, cool team! 😊");
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setPasswordLoading(false);
+      return;
+    }
+    const updatedUser = await response.json();
+    console.log("Updated User:", updatedUser);
+    setMessage(updatedUser.message || "Password updated successfully.");
     setPasswordData({
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     });
-  };
-
-  const handleNotificationSubmit = (e) => {
-    e.preventDefault();
-    setMessage("Notification preferences saved (API call needed).");
+    setPasswordLoading(false);
   };
 
   return (
@@ -216,11 +209,10 @@ const TeacherProfile = () => {
         <div className="max-w-4xl mx-auto">
           {message && (
             <div
-              className={`mb-6 p-4 rounded-xl shadow-sm ${
-                message.includes("success")
-                  ? "bg-green-50 text-green-700 border border-green-200"
-                  : "bg-red-50 text-red-700 border border-red-200"
-              } transition-all duration-300`}
+              className={`mb-6 p-4 rounded-xl shadow-sm ${message.includes("success")
+                ? "bg-green-50 text-green-700 border border-green-200"
+                : "bg-red-50 text-red-700 border border-red-200"
+                } transition-all duration-300`}
             >
               {message}
             </div>
@@ -234,18 +226,6 @@ const TeacherProfile = () => {
                   className="w-32 h-32 sm:w-36 sm:h-36 rounded-full border-4 border-indigo-500 object-cover"
                   alt="Profile"
                 />
-                <div className="relative mt-4">
-                  <button className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-xl flex items-center gap-2 transition-all duration-200 text-sm sm:text-base">
-                    <FaCamera />
-                    <span>Change Photo</span>
-                  </button>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    onChange={handleImageChange}
-                  />
-                </div>
               </div>
             )}
             <div className="flex-1 text-center sm:text-left">
@@ -306,12 +286,17 @@ const TeacherProfile = () => {
                   placeholder="Enter email address"
                 />
               </div>
-              <button
+              {profileLoading ? (<button
+                type="submit"
+                className="bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-200 transform hover:scale-105 text-sm sm:text-base"
+              >
+                Saving......
+              </button>) : (<button
                 type="submit"
                 className="bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-200 transform hover:scale-105 text-sm sm:text-base"
               >
                 Save Changes
-              </button>
+              </button>)}
             </form>
           </div>
 
@@ -331,8 +316,8 @@ const TeacherProfile = () => {
                       {field === "currentPassword"
                         ? "Current Password"
                         : field === "newPassword"
-                        ? "New Password"
-                        : "Confirm New Password"}
+                          ? "New Password"
+                          : "Confirm New Password"}
                     </label>
                     <input
                       type={
@@ -341,41 +326,41 @@ const TeacherProfile = () => {
                             ? "text"
                             : "password"
                           : field === "newPassword"
-                          ? showNewPassword
-                            ? "text"
-                            : "password"
-                          : showConfirmPassword
-                          ? "text"
-                          : "password"
+                            ? showNewPassword
+                              ? "text"
+                              : "password"
+                            : showConfirmPassword
+                              ? "text"
+                              : "password"
                       }
                       name={field}
                       onChange={handlePasswordChange}
                       value={passwordData[field]}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all duration-200 text-sm sm:text-base pr-10"
-                      placeholder={`Enter ${
-                        field === "confirmPassword"
-                          ? "confirm password"
-                          : field === "newPassword"
+                      placeholder={`Enter ${field === "confirmPassword"
+                        ? "confirm password"
+                        : field === "newPassword"
                           ? "new password"
                           : "current password"
-                      }`}
+                        }`}
                     />
                     <button
                       type="button"
+                      tabIndex={-1}
                       className="absolute right-3 top-10 text-gray-500"
                       onClick={() =>
                         togglePasswordVisibility(
                           field === "currentPassword"
                             ? "current"
                             : field === "newPassword"
-                            ? "new"
-                            : "confirm"
+                              ? "new"
+                              : "confirm"
                         )
                       }
                     >
                       {(field === "currentPassword" && showCurrentPassword) ||
-                      (field === "newPassword" && showNewPassword) ||
-                      (field === "confirmPassword" && showConfirmPassword) ? (
+                        (field === "newPassword" && showNewPassword) ||
+                        (field === "confirmPassword" && showConfirmPassword) ? (
                         <FaEyeSlash />
                       ) : (
                         <FaEye />
@@ -384,54 +369,17 @@ const TeacherProfile = () => {
                   </div>
                 )
               )}
-              <button
+              {passwordLoading ? (<button
+                type="submit"
+                className="bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-200 transform hover:scale-105 text-sm sm:text-base"
+              >
+                Updating......
+              </button>) : (<button
                 type="submit"
                 className="bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-200 transform hover:scale-105 text-sm sm:text-base"
               >
                 Update Password
-              </button>
-            </form>
-          </div>
-
-          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <FaBell className="text-indigo-600" />
-              <span>Notification Preferences</span>
-            </h2>
-            <form onSubmit={handleNotificationSubmit} className="space-y-4">
-              {[
-                { id: "courseUpdates", label: "Course Updates" },
-                {
-                  id: "enrollmentNotifications",
-                  label: "Student Enrollment Notifications",
-                },
-                {
-                  id: "marketingCommunications",
-                  label: "Marketing Communications",
-                },
-              ].map(({ id, label }) => (
-                <div key={id} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id={id}
-                    checked={notificationPrefs[id]}
-                    onChange={handleNotificationChange}
-                    className="w-5 h-5 text-indigo-500 rounded focus:ring-indigo-400"
-                  />
-                  <label
-                    htmlFor={id}
-                    className="ml-2 text-gray-700 text-sm sm:text-base"
-                  >
-                    {label}
-                  </label>
-                </div>
-              ))}
-              <button
-                type="submit"
-                className="bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-200 transform hover:scale-105 text-sm sm:text-base"
-              >
-                Save Preferences
-              </button>
+              </button>)}
             </form>
           </div>
         </div>
@@ -441,3 +389,5 @@ const TeacherProfile = () => {
 };
 
 export default TeacherProfile;
+
+

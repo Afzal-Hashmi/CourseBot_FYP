@@ -1,11 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException,Depends
+from fastapi import HTTPException
 from sqlalchemy import select
-from app.config.connection import get_db
 from app.repo.db.models import Role, User
-from app.schemas.userSchema import UserCreate, UserLoginSchema, UserSchema
+from app.schemas.userSchema import UserCreate
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import selectinload, joinedload
+from sqlalchemy.orm import  joinedload
 
 
 class UserRepository:
@@ -34,8 +33,6 @@ class UserRepository:
 
     async def get_user_by_email_repo(self, email: str):
         try:
-            # session = get_db_connection()
-            # db = session()
             result = await self.db.execute(
                 select(User).options(joinedload(User.roles)).where(User.email == email)
             )
@@ -53,3 +50,23 @@ class UserRepository:
         except Exception as e:
             print(f"Unexpected error: {e}")
             return None
+    async def update_user_password_repo(self, userId:int , newPassword:str , salt:str):
+        try:
+            print("Updating password for user ID:", userId)
+            user = await self.db.get(User, userId)
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+            user.hashPassword = newPassword
+            user.salt = salt
+            await self.db.commit()
+            await self.db.refresh(user)
+            print("Password updated successfully for user ID:", userId)
+            return True
+
+        except SQLAlchemyError as e:
+            print(f"Database error: {e}")
+            raise HTTPException(status_code=500, detail="Internal server error during password update.")
+
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            raise HTTPException(status_code=500, detail="Internal server error during password update.")

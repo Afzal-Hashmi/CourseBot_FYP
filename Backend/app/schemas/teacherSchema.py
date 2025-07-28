@@ -22,6 +22,8 @@ class ContentType(str, Enum):
     video = "video"
     pdf = "pdf"
     quiz = "quiz"
+    pptx = "pptx"
+    docx = "docx"
 
 class course_content_schema(BaseModel):
     content_title: str
@@ -40,3 +42,6 @@ class course_content_schema(BaseModel):
             content_type=content_type,
             course_id=course_id
         )
+class RemoveStudentPayload(BaseModel):
+    enrollment_id: int
+    course_id: int

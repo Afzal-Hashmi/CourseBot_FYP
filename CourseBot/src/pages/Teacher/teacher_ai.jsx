@@ -19,10 +19,14 @@ import {
   FaExpand,
   FaCompress,
   FaPaperPlane,
-  FaBars, // Added for mobile toggle
+  FaBars,
+  FaFilePowerpoint,
+  FaFileWord,
 } from "react-icons/fa";
 import Cookie from "js-cookie";
 import { Link, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import FloatingVideoPlayer from "./videoPlayer"
 
 const CourseContentPage = () => {
   const { course_id } = useParams();
@@ -49,30 +53,30 @@ const CourseContentPage = () => {
   const [isContentLoading, setIsContentLoading] = useState(true);
   const [isUploadLoading, setIsUploadLoading] = useState(false);
   const [contentError, setContentError] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Added for mobile toggle
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [url, setUrl] = useState("")
 
   const chatEndRef = useRef(null);
   const chatInputRef = useRef(null);
+  const navigate = useNavigate();
 
-  // Auto-scroll chat to bottom
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
 
-  // Focus chat input when expanded
   useEffect(() => {
     if (isChatExpanded && chatInputRef.current) {
       chatInputRef.current.focus();
     }
   }, [isChatExpanded]);
 
-  // Fetch recent chats
   useEffect(() => {
     const fetchRecentChats = async () => {
       try {
         setIsLoadingChats(true);
         const token = Cookie.get("token");
         if (!token) {
+          navigate("/")
           throw new Error("No authentication token found. Please log in.");
         }
 
@@ -89,7 +93,6 @@ const CourseContentPage = () => {
         }
 
         const data = await response.json();
-        // Map endpoint response to recentChats format
         const formattedChats = (data.chats || []).map((chat) => ({
           chat_id: chat.chat_id,
           title: chat.title ? chat.title.slice(0, 30) + (chat.title.length > 30 ? "..." : "") : "Untitled Chat",
@@ -107,7 +110,6 @@ const CourseContentPage = () => {
     fetchRecentChats();
   }, []);
 
-  // Fetch content (unchanged)
   useEffect(() => {
     const fetchContent = async () => {
       try {
@@ -147,14 +149,13 @@ const CourseContentPage = () => {
     }
   }, [course_id]);
 
-  // Load existing chat
   const loadChat = async (chatId) => {
     try {
       const token = Cookie.get("token");
       if (!token) {
         throw new Error("No authentication token found. Please log in.");
       }
-      // chatId = "cht_994b92e5-05ed-4b71-9b95-cbc74d009258"
+
       const response = await fetch(`http://localhost:8000/teacher/chat/${chatId}`, {
         method: "GET",
         headers: {
@@ -168,7 +169,6 @@ const CourseContentPage = () => {
       }
 
       const data = await response.json();
-      // Map turns to chatMessages format
       const formattedMessages = (data.messages || []).map((turn) => ({
         question: turn.question,
         answer: turn.answer,
@@ -176,7 +176,7 @@ const CourseContentPage = () => {
         chat_id: turn.chat_id,
         turn_id: turn.turn_id,
       }));
-      // setContentItems(formattedMessages)
+
       setCurrentChatId(chatId);
       setCurrentTurnId(data.turns && data.turns.length > 0 ? data.turns[data.turns.length - 1].id : null);
       setCurrentChatTitle(
@@ -193,7 +193,6 @@ const CourseContentPage = () => {
     }
   };
 
-  // Handle asking a question
   const handleAskQuestion = async (e) => {
     e.preventDefault();
     if (!chatQuestion.trim()) {
@@ -259,6 +258,28 @@ const CourseContentPage = () => {
         setCurrentTurnId(data.turn_id);
       }
 
+      const results = data.search_results;
+
+      let firstUrl = null;
+
+      for (const result of results) {
+        if (result.part_metadata?.url) {
+          firstUrl = result.part_metadata.url;
+          break; // Exit loop once found
+        }
+      }
+      if (firstUrl) {
+        setUrl(firstUrl)
+        console.log(url)
+        localStorage.setItem("url", firstUrl);
+      }
+
+      if (!firstUrl) {
+        setUrl("")
+        localStorage.removeItem("url")
+      }
+
+
       setChatMessages((prevMessages) =>
         prevMessages.map((msg, index) =>
           index === prevMessages.length - 1
@@ -268,12 +289,12 @@ const CourseContentPage = () => {
               answer: data.answer || "No answer provided",
               chat_id: data.chat_id,
               turn_id: data.turn_id,
+              // url: data.search_results
             }
             : msg
         )
       );
 
-      // Update recent chats
       if (data.chat_id) {
         const newChatEntry = {
           chat_id: data.chat_id,
@@ -285,7 +306,6 @@ const CourseContentPage = () => {
         setRecentChats((prev) => {
           const existingChatIndex = prev.findIndex((chat) => chat.chat_id === data.chat_id);
           if (existingChatIndex >= 0) {
-            // Update existing chat
             const updatedChats = [...prev];
             updatedChats[existingChatIndex] = {
               ...updatedChats[existingChatIndex],
@@ -294,7 +314,6 @@ const CourseContentPage = () => {
             };
             return updatedChats;
           } else {
-            // Add new chat
             return [newChatEntry, ...prev];
           }
         });
@@ -318,17 +337,17 @@ const CourseContentPage = () => {
     }
   };
 
-  // Toggle sidebar for mobile
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
 
-  // Other utility functions (unchanged)
   const getTypeIcon = (type, size = 16) => {
     const icons = {
       pdf: <FaFilePdf size={size} />,
       video: <FaVideo size={size} />,
       quiz: <FaQuestionCircle size={size} />,
+      pptx: <FaFilePowerpoint size={size} />,
+      docx: <FaFileWord size={size} />,
       default: <FaFileAlt size={size} />,
     };
     return icons[type] || icons.default;
@@ -339,13 +358,22 @@ const CourseContentPage = () => {
       pdf: { bg: "bg-red-50", text: "text-red-600", border: "border-red-100", hover: "hover:bg-red-100" },
       video: { bg: "bg-blue-50", text: "text-blue-600", border: "border-blue-100", hover: "hover:bg-blue-100" },
       quiz: { bg: "bg-yellow-50", text: "text-yellow-600", border: "border-yellow-100", hover: "hover:bg-yellow-100" },
+      pptx: { bg: "bg-orange-50", text: "text-orange-600", border: "border-orange-100", hover: "hover:bg-orange-100" },
+      docx: { bg: "bg-indigo-50", text: "text-indigo-600", border: "border-indigo-100", hover: "hover:bg-indigo-100" },
       default: { bg: "bg-gray-50", text: "text-gray-600", border: "border-gray-100", hover: "hover:bg-gray-200" },
     };
     return colors[type] || colors.default;
   };
 
   const getTypeLabel = (type) => {
-    const labels = { pdf: "PDF", video: "Video", quiz: "Quiz", default: "Resource" };
+    const labels = {
+      pdf: "PDF",
+      video: "Video",
+      quiz: "Quiz",
+      pptx: "PowerPoint",
+      docx: "Word Doc",
+      default: "Resource"
+    };
     return labels[type] || labels.default;
   };
 
@@ -401,7 +429,7 @@ const CourseContentPage = () => {
       formDataToSend.append("content_title", formData.title);
       formDataToSend.append("content_type", formData.type);
       formDataToSend.append("file", formData.file);
-      formDataToSend.append("course_id", course_id);
+      formDataToSend.append("course_id", parseInt(course_id));
 
       const response = await fetch("http://localhost:8000/teacher/uploadcontent/", {
         method: "POST",
@@ -653,6 +681,8 @@ const CourseContentPage = () => {
         }
       `}</style>
 
+
+
       {/* Enhanced Sidebar */}
       <aside
         className={`fixed top-0 left-0 h-full w-64 sm:w-80 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white shadow-2xl transition-transform duration-300 z-50 sidebar ${isSidebarOpen ? "open" : ""
@@ -713,6 +743,8 @@ const CourseContentPage = () => {
                     { key: "pdf", label: "PDF Documents", icon: FaFilePdf, color: "red" },
                     { key: "video", label: "Video Lectures", icon: FaVideo, color: "blue" },
                     { key: "quiz", label: "Quizzes", icon: FaQuestionCircle, color: "yellow" },
+                    { key: "pptx", label: "PowerPoint", icon: FaFilePowerpoint, color: "orange" },
+                    { key: "docx", label: "Word Docs", icon: FaFileWord, color: "indigo" },
                   ].map((filter) => (
                     <button
                       key={filter.key}
@@ -888,12 +920,6 @@ const CourseContentPage = () => {
                     onClick={() => handleCardClick(item)}
                   >
                     <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                      <button
-                        className="p-2 rounded-full bg-white/90 text-blue-600 hover:bg-blue-50 shadow-md transition-all"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <FaEdit size={12} />
-                      </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -1078,7 +1104,10 @@ const CourseContentPage = () => {
             </div>
           </div>
         </section>
+        {url &&
+          <FloatingVideoPlayer uri={url} />
 
+        }
         {/* Upload Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -1129,6 +1158,8 @@ const CourseContentPage = () => {
                       <option value="pdf">📄 PDF Document</option>
                       <option value="video">🎥 Video Lecture</option>
                       <option value="quiz">📝 Quiz/Assignment</option>
+                      <option value="pptx">📊 PowerPoint</option>
+                      <option value="docx">📝 Word Document</option>
                     </select>
                   </div>
 
@@ -1163,8 +1194,10 @@ const CourseContentPage = () => {
                         </div>
                         <p className="text-sm text-slate-500">
                           {formData.type === "pdf" && "PDF files up to 25MB"}
-                          {formData.type === "video" && "MP4, MOV, WEBM files up to 500MB"}
+                          {formData.type === "video" && "MP4, AVI, MOV, MKV files up to 500MB"}
                           {formData.type === "quiz" && "DOCX, PDF, XLSX files up to 10MB"}
+                          {formData.type === "pptx" && "PPTX files up to 50MB"}
+                          {formData.type === "docx" && "DOC, DOCX files up to 10MB"}
                           {!formData.type && "Select content type to see file requirements"}
                         </p>
                         {formData.file && (

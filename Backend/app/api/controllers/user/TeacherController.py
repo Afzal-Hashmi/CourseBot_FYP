@@ -1,6 +1,6 @@
 import io
 from PyPDF2 import PdfReader
-from fastapi import APIRouter, HTTPException, UploadFile,status, Depends
+from fastapi import HTTPException, UploadFile,status, Depends
 from fastapi.responses import JSONResponse
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -13,7 +13,6 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-# Configure with your credentials
 cloudinary.config(
   cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
   api_key=os.getenv('CLOUDINARY_API_KEY'),
@@ -47,7 +46,6 @@ class TeacherController:
                     },
                     status_code=status.HTTP_200_OK
                 )
-                # response = [course.dict() for course in [CourseSchema.model_validate(course) for course in response]]
                 
             response = [{'course_id':course.course_id,
                         'course_name':course.course_name,
@@ -89,7 +87,6 @@ class TeacherController:
     async def delete_course(self, course_id: int, current_user: dict):
         try:
             response = await self.teacher_service.delete_course_service(course_id,current_user)
-                # response = [course.dict() for course in [CourseSchema.model_validate(course) for course in response]]
             if len(response)==0:
                 return JSONResponse(
                     content={
@@ -148,11 +145,12 @@ class TeacherController:
                     },
                     status_code=status.HTTP_401_UNAUTHORIZED
                 )
-            # Upload the file to Cloudinary
+            
             result = cloudinary.uploader.upload(file.file)
             url = result['secure_url']
             form_Data.course_image = url
             print("File uploaded to Cloudinary:", form_Data)
+
             response=await self.teacher_service.create_course_service(form_Data,current_user)
             if len(response) == 0 :
                 return JSONResponse(
@@ -200,71 +198,71 @@ class TeacherController:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
         
-    async def upload_course_controller(self, form_data: course_content_schema, file: UploadFile):
+    # async def upload_course_controller(self, form_data: course_content_schema, file: UploadFile):
         
-        try:
-            # result = cloudinary.uploader.upload(file.file)
-            # url = result['secure_url']
-            # print("File uploaded to Cloudinary:", result)
+    #     try:
+    #         # result = cloudinary.uploader.upload(file.file)
+    #         # url = result['secure_url']
+    #         # print("File uploaded to Cloudinary:", result)
 
-            # return {"image_url": url}
+    #         # return {"image_url": url}
 
-            # 1. Extract PDF text first
-            pdf_bytes = await file.read()
-            text = ""
-            # pdf_file = BytesIO(pdf_bytes)
-            pdf_file = io.BytesIO(pdf_bytes)
-            pdf = PdfReader(pdf_file)
+    #         # 1. Extract PDF text first
+    #         pdf_bytes = await file.read()
+    #         text = ""
+    #         # pdf_file = BytesIO(pdf_bytes)
+    #         pdf_file = io.BytesIO(pdf_bytes)
+    #         pdf = PdfReader(pdf_file)
         
-            for page in pdf.pages:
-                text += page.extract_text()
+    #         for page in pdf.pages:
+    #             text += page.extract_text()
 
-            if not text:
-                raise HTTPException(
-                    status_code=400,
-                    detail='No text found in PDF'
-                )
+    #         if not text:
+    #             raise HTTPException(
+    #                 status_code=400,
+    #                 detail='No text found in PDF'
+    #             )
 
-            # 2. Split into chunks
-            text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=100,
-                chunk_overlap=10
-            )
-            chunks = text_splitter.split_text(text)
+    #         # 2. Split into chunks
+    #         text_splitter = RecursiveCharacterTextSplitter(
+    #             chunk_size=100,
+    #             chunk_overlap=10
+    #         )
+    #         chunks = text_splitter.split_text(text)
             
-            # Here you'd normally save them to your vector db
-            # e.g.: vectordb.upsert(chunks)
-            print(f"Number of chunks created: {chunks}")
+    #         # Here you'd normally save them to your vector db
+    #         # e.g.: vectordb.upsert(chunks)
+    #         print(f"Number of chunks created: {chunks}")
 
-            return JSONResponse(
-                content={
-                    "succeeded": True,
-                    "msg": "PDF processed successfully.",
-                    "course_id": chunks if chunks else None,
-                    "number_of_chunks": len(chunks),
-                    "httpStatusCode": 200,
-                },
-                status_code=200,
-            )
+    #         return JSONResponse(
+    #             content={
+    #                 "succeeded": True,
+    #                 "msg": "PDF processed successfully.",
+    #                 "course_id": chunks if chunks else None,
+    #                 "number_of_chunks": len(chunks),
+    #                 "httpStatusCode": 200,
+    #             },
+    #             status_code=200,
+    #         )
 
-        except HTTPException as e:
-            return JSONResponse(
-                content={
-                    "succeeded": False,
-                    "msg": e.detail,
-                    "httpStatusCode": e.status_code,
-                },
-                status_code=e.status_code
-            )
-        except Exception as e:
-            return JSONResponse(
-                content={
-                    "succeeded": False,
-                    "msg": str(e),
-                    "httpStatusCode": 500,
-                },
-                status_code=500
-            )
+    #     except HTTPException as e:
+    #         return JSONResponse(
+    #             content={
+    #                 "succeeded": False,
+    #                 "msg": e.detail,
+    #                 "httpStatusCode": e.status_code,
+    #             },
+    #             status_code=e.status_code
+    #         )
+    #     except Exception as e:
+    #         return JSONResponse(
+    #             content={
+    #                 "succeeded": False,
+    #                 "msg": str(e),
+    #                 "httpStatusCode": 500,
+    #             },
+    #             status_code=500
+    #         )
 
 
 
@@ -450,55 +448,172 @@ class TeacherController:
                 },
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-    async def upload_content_controller(self, form_data: course_content_schema, file: UploadFile, current_user:dict):
+    # async def upload_content_controller(self, form_data: course_content_schema, file: UploadFile, current_user:dict):
+    #     cloudinary_url = None
+    #     cloudinary_public_id = None
+        
+    #     try:
+    #         if not file:
+    #             raise HTTPException(status_code=400, detail='No file uploaded')
+            
+    #         file_content = await file.read()
+    #         if not file_content:
+    #             raise HTTPException(status_code=400, detail='File is empty')
+            
+    #         print("Uploading file to Cloudinary...")
+    #         result = cloudinary.uploader.upload(
+    #             file_content,
+    #             resource_type='auto', 
+    #             public_id=form_data.content_title.strip().replace(" ", "_"),
+    #         )
+    #         cloudinary_url = result['secure_url']
+    #         cloudinary_public_id = result.get('public_id')
+    #         print("File uploaded to Cloudinary:", cloudinary_url)
+
+    #         file.file = io.BytesIO(file_content)
+            
+    #         response = await self.teacher_service.upload_content_service(form_data, file, current_user, cloudinary_url)
+            
+    #         return response
+            
+    #     except HTTPException:
+    #         # Cleanup Cloudinary on failure
+    #         if cloudinary_public_id:
+    #             try:
+    #                 cloudinary.uploader.destroy(cloudinary_public_id)
+    #                 print(f"Cleaned up Cloudinary file: {cloudinary_public_id}")
+    #             except Exception as cleanup_error:
+    #                 print(f"Failed to cleanup Cloudinary: {cleanup_error}")
+    #         raise
+    #     except Exception as e:
+    #         # Cleanup Cloudinary on failure
+    #         if cloudinary_public_id:
+    #             try:
+    #                 cloudinary.uploader.destroy(cloudinary_public_id)
+    #             except:
+    #                 pass
+    #         print(f"Error uploading content: {e}")
+    #         raise HTTPException(
+    #             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    #             detail="Error uploading content"
+    #         )
+
+   
+
+    async def upload_content_controller(self, form_data: course_content_schema, file: UploadFile, current_user: dict):
         cloudinary_url = None
         cloudinary_public_id = None
-        
+        EXTENSION_MAP = {
+        "video": [".mp4", ".avi", ".mov", ".mkv"],
+        "pdf": [".pdf"],
+        "pptx": [".pptx"],
+        "docx": [".doc", ".docx"],
+        }
+
         try:
             if not file:
                 raise HTTPException(status_code=400, detail='No file uploaded')
-            
+
             file_content = await file.read()
             if not file_content:
                 raise HTTPException(status_code=400, detail='File is empty')
+
+            # 🔍 Extract file extension
+            ext = os.path.splitext(file.filename)[1].lower()
+            content_type = form_data.content_type.lower()
+
+            print(f"🔍 Validating file type: {ext} for content_type: {content_type}")
+
+            # ✅ Validate extension against allowed types
+            allowed_exts = EXTENSION_MAP.get(content_type)
+            if not allowed_exts:
+                raise HTTPException(status_code=400, detail=f"Unsupported content type: {content_type}")
+
+            if ext not in allowed_exts:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File type '{ext}' does not match expected type for '{content_type}' content"
+                )
             
-            print("Uploading file to Cloudinary...")
+            # if ext in EXTENSION_MAP["video"]:
+            #     print("📹 Detected video content type, uploading video...")
+            #     file.file = io.BytesIO(file_content)
+            #     response = await self.upload_video(file)
+            #     if not response:
+            #         raise HTTPException(
+            #             status_code=500,
+            #             detail="Video upload failed"
+            #         )
+            #     processVideo = await self.process_video(response['video_id'])
+            #     if not processVideo:
+            #         raise HTTPException(
+            #             status_code=500,
+            #             detail="Video processing failed"
+            #         )
+            #     print("✅ Video processed successfully:", processVideo)
+            #     response['transcript'] = processVideo.get('transcript')
+            #     response['status'] = "processed"
+            #     response['video_path'] = response.get('video_path', f"/static/videos/{response['video_id']}.mp4")
+            #     response['video_id'] = response['video_id']
+            #     response['content_type'] = content_type
+            #     response['content_title'] = form_data.content_title
+
+            #     print("✅ Video uploaded successfully:", response)
+            #     return JSONResponse(
+            #         content={
+            #             "succeeded": True,
+            #             "message": "Video uploaded successfully",
+            #             "data": response,
+            #             "httpStatusCode": status.HTTP_200_OK,
+            #         },
+            #         status_code=status.HTTP_200_OK,
+            #     )
+
+
+            print("📤 Uploading file to Cloudinary...")
             result = cloudinary.uploader.upload(
                 file_content,
-                resource_type='auto', 
+                resource_type='auto',
                 public_id=form_data.content_title.strip().replace(" ", "_"),
             )
+
             cloudinary_url = result['secure_url']
             cloudinary_public_id = result.get('public_id')
-            print("File uploaded to Cloudinary:", cloudinary_url)
+            print("✅ File uploaded to Cloudinary:", cloudinary_url)
 
+            # Rewind file for downstream usage
             file.file = io.BytesIO(file_content)
-            
-            response = await self.teacher_service.upload_content_service(form_data, file, current_user, cloudinary_url)
-            
+
+            response = await self.teacher_service.upload_content_service(
+                form_data, file, current_user, cloudinary_url
+            )
+
             return response
-            
+
         except HTTPException:
-            # Cleanup Cloudinary on failure
             if cloudinary_public_id:
                 try:
+                    response = await self.teacher_service.delete_with_url(cloudinary_url,current_user)
+                    if response.get("row_deleted")> 0 :
+                        print("DB deleted Successful")
                     cloudinary.uploader.destroy(cloudinary_public_id)
-                    print(f"Cleaned up Cloudinary file: {cloudinary_public_id}")
+                    print(f"🧹 Cleaned up Cloudinary file: {cloudinary_public_id}")
                 except Exception as cleanup_error:
-                    print(f"Failed to cleanup Cloudinary: {cleanup_error}")
+                    print(f"⚠️ Failed to cleanup Cloudinary: {cleanup_error}")
             raise
         except Exception as e:
-            # Cleanup Cloudinary on failure
             if cloudinary_public_id:
                 try:
                     cloudinary.uploader.destroy(cloudinary_public_id)
                 except:
                     pass
-            print(f"Error uploading content: {e}")
+            print(f"❌ Error uploading content: {e}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Error uploading content"
             )
+
+   
     async def get_content_controller(self, content_id: int):
         try:
             response = await self.teacher_service.get_content_service(content_id)
@@ -665,19 +780,17 @@ class TeacherController:
             
     async def edit_profile_controller(self, teacher_id: int, form_data: dict, current_user: dict):
         try:
-            # Authorization check
-            if current_user.get("roles") != "teacher":
+            if current_user.get("roles") not in ["teacher", "student"]:
                 return JSONResponse(
                     content={
                         "succeeded": False,
-                        "message": "You are not authorized as a teacher",
+                        "message": "You are not authorized",
                         "data": [],
                         "httpStatusCode": status.HTTP_401_UNAUTHORIZED
                     },
                     status_code=status.HTTP_401_UNAUTHORIZED
                 )
             
-            # Verify user is editing their own profile
             if str(current_user.get("id")) != str(teacher_id):
                 return JSONResponse(
                     content={
@@ -701,21 +814,21 @@ class TeacherController:
                     },
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-
-            # Format response data
-            profile_data = {
-                "teacher_id": response.id,
-                "firstName": response.firstName,
-                "lastName": response.lastName,
-                "email": response.email,
-                # "updated_at": str(response.updated_at) if response.updated_at else None
-            }
+            
+            response = {
+                        "id": response.id,
+                        "firstName": response.firstName,
+                        "lastName": response.lastName,
+                        "email": response.email,
+                        "roles": response.roles.role,
+                        "profilePicture": response.profilePicture if response.profilePicture else None,
+                    }
 
             return JSONResponse(
                 content={
                     "succeeded": True,
                     "message": "Profile updated successfully",
-                    "data": [profile_data],  # Wrapped in list to match your pattern
+                    "data": response,
                     "httpStatusCode": status.HTTP_200_OK
                 }
             )
@@ -741,4 +854,58 @@ class TeacherController:
                     "httpStatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
                 },
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+    async def remove_student_controller(self, enrollment_id: int, course_id: int, current_user: dict):
+        try:
+            if current_user.get("roles") != "teacher":
+                return JSONResponse(
+                    content={
+                        'succeeded': False,
+                        'message': 'You are not authorized as a teacher',
+                        'data': [],
+                        'httpStatusCode': status.HTTP_401_UNAUTHORIZED
+                    },
+                    status_code=status.HTTP_401_UNAUTHORIZED
+                )
+            response = await self.teacher_service.remove_student_service(enrollment_id, course_id)
+            if not response:
+                return JSONResponse(
+                    content={
+                        "succeeded": False,
+                        "message": "Student not found or already removed",
+                        "data": [],
+                        "httpStatusCode": status.HTTP_404_NOT_FOUND,
+                    },
+                    status_code=status.HTTP_404_NOT_FOUND,
+                )
+            return JSONResponse(
+                content={
+                    "succeeded": True,
+                    "message": "Student removed successfully",
+                    "data": response,
+                    "httpStatusCode": status.HTTP_200_OK,
+                },
+                status_code=status.HTTP_200_OK,
+            )
+        except HTTPException as e:
+            return JSONResponse(
+                content={
+                    "succeeded": False,
+                    "message": e.detail,
+                    "data": [],
+                    "httpStatusCode": e.status_code,
+                },
+                status_code=e.status_code,
+            )
+        except Exception as e:
+            print(f"Error removing student: {e}")
+            return JSONResponse(
+                content={
+                    "succeeded": False,
+                    "message": "Error removing student",
+                    "data": [],
+                    "httpStatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                },
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )

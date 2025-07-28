@@ -2,15 +2,15 @@ import http
 import os
 import urllib
 import cloudinary
-from fastapi import HTTPException,status,UploadFile
+from fastapi import HTTPException,status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select,delete,insert
+from sqlalchemy import select,delete
 
 from .db.models import CourseFeedback
 from .db.models import Course, CourseContent,ChatID,Enrollment,User
 from ..schemas.teacherSchema import course_content_schema, course_schema
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload,joinedload
 
 class TeacherRepository:
     def __init__(self,db:AsyncSession):
@@ -35,8 +35,6 @@ class TeacherRepository:
         return result
     
     async def create_course_repo(self,form_Data: course_schema,current_user:dict):
-        
-        # result = await self.db.execute(insert(Course).values(form_Data))
         try:
             course = form_Data.model_dump()
             result = Course(**course ,course_status='Draft',teacher_id=current_user.get("id"))
@@ -68,7 +66,6 @@ class TeacherRepository:
                     detail="Course not found."
                 )
 
-            # Update only course_status if it's provided
             if "course_status" in form_Data:
                 if form_Data["course_status"] == 'Draft':
                        course.course_status = 'Published'
@@ -76,7 +73,6 @@ class TeacherRepository:
                     course.course_status = 'Draft'
                 else:
                     return
-                # course.course_status = form_Data["course_status"]
 
             await self.db.commit()
             await self.db.refresh(course)
@@ -95,24 +91,24 @@ class TeacherRepository:
                 detail="Error while updating course."
             )
 
-        try:
-            course = await self.db.execute(select(Course).where(Course.course_id == course_id, Course.teacher_id == current_user.get("id")))
-            course = course.scalar_one_or_none()
-            if not course:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course Not Found")
+        # try:
+        #     course = await self.db.execute(select(Course).where(Course.course_id == course_id, Course.teacher_id == current_user.get("id")))
+        #     course = course.scalar_one_or_none()
+        #     if not course:
+        #         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course Not Found")
             
-            for key, value in form_Data.items():
-                setattr(course, key, value)
+        #     for key, value in form_Data.items():
+        #         setattr(course, key, value)
             
-            await self.db.commit()
-            await self.db.refresh(course)
-            return course
-        except SQLAlchemyError as e:
-            print(f"Database error: {e}")
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error Editing Course")
-        except Exception as e:
-            print(f"Error Editing Course: {e}")
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error Editing Course")
+        #     await self.db.commit()
+        #     await self.db.refresh(course)
+        #     return course
+        # except SQLAlchemyError as e:
+        #     print(f"Database error: {e}")
+        #     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error Editing Course")
+        # except Exception as e:
+        #     print(f"Error Editing Course: {e}")
+        #     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error Editing Course")
     async def fetch_feedback_repo(self, current_user: dict):
         try:
             result = await self.db.execute(
@@ -144,40 +140,12 @@ class TeacherRepository:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Error fetching feedback"
             )
-    
-    # async def upload_content_repo(self, form_data: course_content_schema, url: str = None):
-    #     try:
-    #         print("Repo")
-    #         content = form_data.model_dump()
-    #         print(content["course_id"]+"-"+content["content_id"])
-    #         doc_id=content["course_id"]"-"content["content_id"]
-
-    #         result = CourseContent(
-    #             title=content["content_title"],
-    #             content_type=content["content_type"], 
-    #             content_url=url, 
-    #             course_id=content["course_id"],
-    #             vectera_document_id=doc_id
-    #         )
-
-    #         self.db.add(result)
-    #         await self.db.commit()
-    #         await self.db.refresh(result) 
-    #         print("Done Repo")
-    #         return {
-    #             "content_id": result.content_id, 
-    #             "title": result.title,
-    #             "content_type": result.content_type,
-    #             "content_url": result.content_url,
-    #             "course_id": result.course_id,
-    #         }
 
     async def upload_content_repo(self, form_data: course_content_schema, url: str = None):
         try:
             content = form_data.model_dump()
             vectara_id = content["content_title"]+"-"+str(content["course_id"])
             
-            # Create record first
             result = CourseContent(
                 title=content["content_title"],
                 content_type=content["content_type"], 
@@ -225,7 +193,7 @@ class TeacherRepository:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Error fetching course content"
             )
-    async def delete_content_repo(self, content_id: int, current_user: dict):
+    async def delete_content_repo(self, content_id: int , current_user: dict):
         try:
             # Execute the delete query
             response = await self.db.execute(select(CourseContent).where(CourseContent.content_id == content_id))
@@ -247,12 +215,10 @@ class TeacherRepository:
             # data = res.read()
             print(f"Deleting content {content_id} from Vectara...")
         
-            # ✅ FIXED: Percent-encode the document_id as required by Vectara API
             document_id = str(response.vectera_document_id)
             encoded_document_id = urllib.parse.quote(document_id, safe='')
             
-            # ✅ FIXED: Use proper corpus_key in URL structure
-            corpus_key = "Tester"  # Your corpus key
+            corpus_key = "Tester"
             vectara_url = f"/v2/corpora/{corpus_key}/documents/{encoded_document_id}"
         
             conn.request("DELETE", vectara_url, payload, headers)
@@ -266,16 +232,13 @@ class TeacherRepository:
             cloudinary.uploader.destroy(response.content_url)
             print(f"Cleaned up Cloudinary file: {response.content_url}")
             
-            # Check if any rows were actually deleted
             if result.rowcount == 0:
-                # No rows found - either content doesn't exist or user doesn't own it
                 await self.db.rollback()
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Content not found or you don't have permission to delete it"
                 )
             
-            # IMPORTANT: Commit the transaction
             await self.db.commit()
             print("Transaction committed successfully")
             
@@ -285,7 +248,76 @@ class TeacherRepository:
             }
             
         except HTTPException:
-            # Re-raise HTTP exceptions as-is
+            raise
+        except SQLAlchemyError as e:
+            await self.db.rollback()
+            print(f"Database error: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Database error while deleting course content"
+            )
+        except Exception as e:
+            await self.db.rollback()
+            print(f"Error Deleting course content: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error deleting course content"
+            )
+        
+    async def delete_with_url_repo(self, url: str , current_user: dict):
+        try:
+            response = await self.db.execute(select(CourseContent).where(CourseContent.content_url == url))
+            result = await self.db.execute(
+                delete(CourseContent).where(
+                    CourseContent.content_url == url, 
+                )
+            )
+            response = response.scalar_one_or_none()
+            print(response.vectera_document_id)
+            content_id=content_id
+            conn = http.client.HTTPSConnection("api.vectara.io")
+            payload = ''
+            headers = {
+            'x-api-key': os.getenv("VECTARA_API_KEY"),
+            }
+            # conn.request("DELETE", "/v2/corpora/Tester/documents/{content_id}", payload, headers)
+            # res = conn.getresponse()
+            # data = res.read()
+            print(f"Deleting content {content_id} from Vectara...")
+        
+            document_id = str(response.vectera_document_id)
+            encoded_document_id = urllib.parse.quote(document_id, safe='')
+            
+            corpus_key = "Tester" 
+            vectara_url = f"/v2/corpora/{corpus_key}/documents/{encoded_document_id}"
+        
+            conn.request("DELETE", vectara_url, payload, headers)
+            res = conn.getresponse()
+            data = res.read()
+            print(data.decode("utf-8"))
+            
+            print(f"Delete result: {result}")
+            print(f"Rows affected: {result.rowcount}")
+
+            # cloudinary.uploader.destroy(response.content_url)
+            # print(f"Cleaned up Cloudinary file: {response.content_url}")
+            
+            if result.rowcount == 0:
+                await self.db.rollback()
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Content not found or you don't have permission to delete it"
+                )
+            
+            await self.db.commit()
+            print("Transaction committed successfully")
+            
+            return {
+                "rows_deleted": result.rowcount,
+                "message": "Content deleted successfully"
+            }
+            
+        except HTTPException:
             raise
         except SQLAlchemyError as e:
             await self.db.rollback()
@@ -345,7 +377,7 @@ class TeacherRepository:
                 .where(Course.teacher_id == current_user.get("id"))
             )
 
-            result = result.all()  # ✅ keep (Course, User) tuples
+            result = result.all() 
             return result
 
         except SQLAlchemyError as e:
@@ -363,7 +395,6 @@ class TeacherRepository:
             
     async def update_teacher_info(self, teacher_id: int, update_data: dict, current_user: dict):
         try:
-            # Verify the current user is the teacher they're trying to update
             if str(current_user.get("id")) != str(teacher_id) or current_user.get("role") != "teacher":
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
@@ -385,7 +416,6 @@ class TeacherRepository:
                     detail="Teacher not found"
                 )
 
-            # Update fields from the update_data dict
             for field, value in update_data.items():
                 if hasattr(teacher, field):
                     setattr(teacher, field, value)
@@ -403,7 +433,6 @@ class TeacherRepository:
     
     async def edit_profile_repo(self, teacher_id: int, form_data: dict, current_user: dict):
         try:
-            # Verify the user exists and is the current user
             user = await self.db.execute(
                 select(User).where(
                     User.id == teacher_id,
@@ -427,7 +456,15 @@ class TeacherRepository:
 
             await self.db.commit()
             await self.db.refresh(user)
-            return user
+
+            result = await self.db.execute(
+                select(User).options(joinedload(User.roles)).where(User.id == current_user.get("id"))
+            )
+            result = result.scalar_one_or_none()
+
+            if not result:
+                raise HTTPException(status_code=404, detail="User does not exist")
+            return result
 
         except SQLAlchemyError as e:
             await self.db.rollback()
@@ -444,3 +481,42 @@ class TeacherRepository:
                 detail="Error while updating profile."
             )
     
+    async def remove_student_repo(self, enrollment_id: int, course_id: int):
+        try:
+            result = await self.db.execute(
+                select(Enrollment).where(
+                    Enrollment.enrollment_id == enrollment_id,
+                    Enrollment.course_id == course_id
+                )
+            )
+            enrollment = result.scalar_one_or_none()
+
+            if not enrollment:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Enrollment not found"
+                )
+
+            await self.db.execute(
+                delete(Enrollment).where(
+                    Enrollment.enrollment_id == enrollment_id,
+                    Enrollment.course_id == course_id
+                )
+            )
+            await self.db.commit()
+            return {"message": "Student removed from course successfully"}
+
+        except SQLAlchemyError as e:
+            await self.db.rollback()
+            print(f"Database error: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error removing student from course"
+            )
+        except Exception as e:
+            await self.db.rollback()
+            print(f"Error removing student from course: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error removing student from course"
+            )

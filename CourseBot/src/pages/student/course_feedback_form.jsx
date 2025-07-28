@@ -14,7 +14,6 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
 
-// Error Boundary Component
 class ErrorBoundary extends Component {
   state = { hasError: false, error: null };
 

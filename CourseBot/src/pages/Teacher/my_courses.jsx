@@ -198,7 +198,6 @@ const MyCourses = () => {
     fetchCourses();
   }, [navigate]);
 
-  // Filter courses based on selected filter
   const filteredCourses = courses.filter((course) => {
     if (filter === "All Courses") return true;
     if (filter === "Published") return course.course_status === "Published";

@@ -1,22 +1,15 @@
-# from fastapi import APIRouter, Depends, Form, HTTPException,status, File, UploadFile
 from typing import Dict
 import requests
 from fastapi.responses import JSONResponse
-import http.client
 import json
-import uuid
-from datetime import datetime
 
-from ...schemas.teacherSchema import course_content_schema, course_schema
+from ...schemas.teacherSchema import RemoveStudentPayload, course_content_schema, course_schema
 from ..controllers.user.TeacherController import TeacherController
 from ...utils.auth import get_current_user
 
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, status
 from pydantic import BaseModel
-import shutil
 import os
-from cloudinary import uploader
-import cloudinary
 
 teacherRouter = APIRouter()
 
@@ -201,7 +194,6 @@ async def ask_question_from_video(payload: AskQuestionSchema, course_id:int, cur
         print(f"Making request to: {url}")
         print(f"Request payload: {json.dumps(request_payload, indent=2)}")
 
-        # Make the API request
         response = requests.post(
             url, 
             headers=headers, 
@@ -218,17 +210,16 @@ async def ask_question_from_video(payload: AskQuestionSchema, course_id:int, cur
             )
         
         vectara_response = response.json()
+        print(vectara_response)
         if not payload.chat_id:
             await  teacher_controller.save_chat_id(payload.question,vectara_response.get("chat_id"),course_id,current_user)
         print(f"Vectara response: {json.dumps(vectara_response, indent=2)}")
-        
-        # Extract the response data
+
         answer = vectara_response.get("answer", "No answer provided")
         chat_id = vectara_response.get("chat_id")
         turn_id = vectara_response.get("turn_id")
         search_results = vectara_response.get("search_results", [])
         
-        # Prepare the response
         response_data = {
             "answer": answer,
             "chat_id": chat_id,
@@ -247,47 +238,16 @@ async def ask_question_from_video(payload: AskQuestionSchema, course_id:int, cur
         print(f"Unexpected error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-
-# ✅ NEW: Endpoint to list recent chats
 @teacherRouter.get("/teacher/list/chats/{course_id}")
 async def list_recent_chats(course_id:int,current_user: dict = Depends(get_current_user),  teacher_controller: TeacherController = Depends(TeacherController)):
     try:
 
         return await teacher_controller.get_chat_id(course_id,current_user) 
-        # headers = {
-        #     'Accept': 'application/json',
-        #     'x-api-key': os.getenv("VECTARA_API_KEY"),
-        # }
-        
-        # List chats from Vectara
-        # url = "https://api.vectara.io/v2/chats"
-        # response = requests.get(url, headers=headers)
-        
-        # if response.status_code == 200:
-        #     vectara_response = response.json()
-        #     chats = vectara_response.get("chats", [])
-            
-        #     # Format the response for frontend
-        #     formatted_chats = []
-        #     for chat in chats:
-        #         formatted_chats.append({
-        #             "chat_id": chat.get("id"),
-        #             "title": chat.get("first_query", "Untitled Chat"),
-        #             "date": chat.get("created_at", chat.get("modified_at")),
-        #             "last_message": chat.get("answer", "")
-        #         })
-            
-        #     return {"chats": formatted_chats}
-        # else:
-        #     print(f"Failed to fetch chats: {response.text}")
-        #     return {"chats": []}
-            
     except Exception as e:
         print(f"Error fetching chats: {str(e)}")
         return {"chats": []}
 
 
-# ✅ NEW: Endpoint to get specific chat history
 @teacherRouter.get("/teacher/chat/{chat_id}")
 async def get_chat_history(chat_id: str, current_user: dict = Depends(get_current_user)):
     try:
@@ -305,8 +265,7 @@ async def get_chat_history(chat_id: str, current_user: dict = Depends(get_curren
         print(response.text)
         if response.status_code == 200:
             vectara_response = response.json()
-            
-            # Extract turns/messages from the chat
+
             turns = vectara_response.get("turns", [])
             messages = []
             
@@ -332,9 +291,6 @@ async def get_chat_history(chat_id: str, current_user: dict = Depends(get_curren
     except Exception as e:
         print(f"Error fetching chat: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch chat: {str(e)}")
-
-
-
 
 @teacherRouter.get("/teacher/getcontent/{course_id}")
 async def get_content(course_id: int, current_user: dict = Depends(get_current_user), teacher_controller: TeacherController = Depends(TeacherController)):
@@ -372,8 +328,6 @@ async def get_students_router(current_user:dict = Depends(get_current_user), tea
         )
     return await teacher_controller.get_students_controller(current_user)
 
-
-
 @teacherRouter.put('/teacher/editprofile/{teacher_id}')
 async def edit_profile_router(
     teacher_id: int, 
@@ -394,4 +348,24 @@ async def edit_profile_router(
     
     return await teacher_controller.edit_profile_controller(
         teacher_id, form_data, current_user
+    )
+
+@teacherRouter.delete("/teacher/remove-student/")
+async def remove_student_router(
+    payload: RemoveStudentPayload,
+    current_user: dict = Depends(get_current_user),
+    teacher_controller: TeacherController = Depends(TeacherController)
+):
+    if not current_user:
+        return JSONResponse(
+            content={
+                "succeeded": False,
+                "message": "Authentication failed: Bearer <token> not found",
+                "httpStatusCode": status.HTTP_401_UNAUTHORIZED,
+            },
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    return await teacher_controller.remove_student_controller(
+        payload.enrollment_id, payload.course_id, current_user
     )

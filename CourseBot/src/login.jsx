@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaRobot, FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import "./index.css";
@@ -10,6 +10,17 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    const role = Cookies.get("role");
+    const userCookie = Cookies.get("user");
+    const user = userCookie ? JSON.parse(userCookie) : null;
+    if (token && role == "student" && user) {
+      navigate("/student/dashboard");
+      return;
+    }
+  }, [navigate]);
 
   const handleLogin = async () => {
     setLoading(true);
@@ -44,7 +55,7 @@ export default function Login() {
         setLoading(false);
         setError(data.message || "Login failed. Please try again.");
       }
-    } catch (err) {
+    } catch {
       setLoading(false);
       setError("Something went wrong. Please try again later.");
     }

@@ -1,0 +1,207 @@
+# CourseBot_FYP
+
+CourseBot_FYP is a full-stack application designed to facilitate course management, feedback, and AI-powered assistance for students and teachers. The project is divided into two main parts:
+
+- **Backend**: Python (FastAPI, SQLAlchemy, Alembic)
+- **Frontend**: React (Vite)
+
+---
+
+## Table of Contents
+
+- [Project Structure](#project-structure)
+- [Backend](#backend)
+  - [Setup](#backend-setup)
+  - [Key Directories & Files](#backend-key-directories--files)
+  - [Running the Backend](#running-the-backend)
+- [Frontend](#frontend)
+  - [Setup](#frontend-setup)
+  - [Key Directories & Files](#frontend-key-directories--files)
+  - [Running the Frontend](#running-the-frontend)
+- [Database Migrations](#database-migrations)
+- [Docker Support](#docker-support)
+- [Development Notes](#development-notes)
+
+---
+
+## Project Structure
+
+```
+CourseBot_FYP/
+  ├── Backend/         # FastAPI backend, database, and API logic
+  └── CourseBot/       # React frontend (Vite)
+```
+
+Let me know if you want to customize any section or add more details!
+
+---
+
+## Backend
+
+### Backend Setup
+
+1. **Python Version**: Ensure you are using the correct Python version (see `.python-version`).
+2. **Install dependencies**:
+   ```bash
+   cd Backend
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
+3. **Database**: Configure your database connection in `Backend/app/config/connection.py`.
+
+### Backend Key Directories & Files
+
+- `main.py`: FastAPI entry point.
+- `app/`
+  - `api/`
+    - `controllers/`: Business logic for authentication and user management.
+    - `router/`: API route definitions (auth, student, teacher, helpers).
+  - `config/`: Database connection and initialization.
+  - `repo/`: Data access layer (models and repositories).
+  - `schemas/`: Pydantic schemas for request/response validation.
+  - `services/`: Service layer for business logic.
+  - `utils/`: Utility functions (e.g., authentication, hashing).
+- `alembic/`: Database migrations (see [Database Migrations](#database-migrations)).
+- `requirements.txt`: Python dependencies.
+- `Dockerfile`: Containerization support.
+
+### Running the Backend
+
+```bash
+cd Backend
+uvicorn main:app --reload
+```
+
+---
+
+## Frontend
+
+### Frontend Setup
+
+1. **Node.js**: Ensure Node.js (v16+) is installed.
+2. **Install dependencies**:
+   ```bash
+   cd CourseBot
+   npm install
+   ```
+
+### Frontend Key Directories & Files
+
+- `src/`
+  - `components/`: Reusable UI components (e.g., Sidebar, InputField).
+  - `pages/`: Page-level components for students and teachers.
+  - `assets/`: Static assets (images, SVGs).
+  - `App.jsx`: Main React app component.
+  - `main.jsx`: Entry point.
+- `public/`: Static files.
+- `vite.config.js`: Vite configuration.
+- `package.json`: NPM dependencies and scripts.
+
+### Running the Frontend
+
+```bash
+cd CourseBot
+npm run dev
+```
+
+The app will be available at `http://localhost:5173` by default.
+
+---
+
+## Database Migrations
+
+- Alembic is used for database migrations.
+- Migration scripts are in `Backend/alembic/versions/`.
+- To create a new migration:
+  ```bash
+  cd Backend
+  alembic revision --autogenerate -m "Migration message"
+  ```
+- To apply migrations:
+  ```bash
+  alembic upgrade head
+  ```
+
+---
+
+## Docker Support
+
+- The backend includes a `Dockerfile` for containerization.
+- To build and run:
+  ```bash
+  cd Backend
+  docker build -t coursebot-backend .
+  docker run -p 8000:8000 coursebot-backend
+  ```
+
+---
+
+## Development Notes
+
+- **Authentication**: Handled via FastAPI routes in `authController.py` and related services.
+- **Role Management**: Student and Teacher roles are supported, with separate controllers, services, and frontend pages.
+- **AI Features**: There are helper routes (e.g., `ollama_helper.py`, `video_processor.py`) for AI-powered features.
+- **Feedback System**: Students can provide feedback on courses, managed via dedicated models and schemas.
+- **Frontend Routing**: React Router is used for navigation between pages for students and teachers.
+
+---
+
+## Contributing
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Commit your changes.
+4. Push to the branch (`git push origin feature-branch`).
+5. Open a Pull Request.
+
+---
+
+## License
+
+This project is for educational purposes. See `LICENSE` if present.
+
+---
+
+## Contact
+
+For questions or support, please contact the project maintainer.
+
+## Database Setup (After First Run)
+
+After starting your containers for the first time, you need to:
+
+1. **Run Alembic migrations to create all tables:**
+   ```bash
+   docker-compose exec backend alembic upgrade head
+   ```
+
+2. **Insert required roles into the database:**
+   ```bash
+   docker-compose exec db psql -U coursebot -d coursebotdb
+   ```
+   Then, at the `psql` prompt, run:
+   ```sql
+   INSERT INTO roles (role) VALUES ('teacher'), ('student');
+   ```
+   Press `Ctrl+D` to exit `psql`.
+
+---
+
+**Note:**  
+- These steps are only needed the first time you set up a new database.
+- If you automate this with a migration or seed script, update this section accordingly.
+
+
+
+docker-compose exec db psql -U coursebot -d coursebotdb
+
+
+docker-compose exec backend /bin/bash
+alembic upgrade head
+
+
+
+docker-compose exec db psql -U coursebot -d coursebotdb
+# Then at the psql prompt:
+INSERT INTO roles (role) VALUES ('teacher'), ('student');
