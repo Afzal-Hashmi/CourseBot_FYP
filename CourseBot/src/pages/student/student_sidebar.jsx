@@ -9,7 +9,6 @@ import {
   FaTimes,
   FaBars,
   FaUserCircle,
-  FaCommentAlt,
 } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -173,7 +172,6 @@ const StudentSidebar = () => {
         ></div>
       )}
 
-      {/* CSS for Animations */}
       <style>
         {`
           .animate-slide-in {

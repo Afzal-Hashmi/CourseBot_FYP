@@ -1,5 +1,3 @@
-# use pydantic schemas for validation and serialization
-from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
 from app.schemas.roleSchema import Role
 
@@ -42,16 +40,6 @@ class UserLoginSchema(BaseModel):
     username: EmailStr
     password: str = Field(min_length=8, max_length=50)
 
-# class CourseSchema(BaseModel):
-#     course_id: int
-#     course_name: str
-#     course_description: str
-#     updated_at: datetime
-
-
-#     class Config:
-#         orm_mode = True
-#         from_attributes = True
-#         json_encoders = {
-#             datetime: lambda v: v.isoformat()
-#         }
+class UserPasswordResetSchema(BaseModel):
+    currentPassword: str
+    newPassword: str

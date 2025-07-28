@@ -26,19 +26,15 @@ from urllib.parse import urlparse
 
 load_dotenv()
 
-# Parse the DATABASE_URL from environment variable
 tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
 
-# Format for async SQLAlchemy URL
 DATABASE_URL = (
     f"postgresql+asyncpg://{tmpPostgres.username}:{tmpPostgres.password}"
     f"@{tmpPostgres.hostname}{tmpPostgres.path}"
 )
 
-# Create an asynchronous SQLAlchemy engine
 engine = create_async_engine(DATABASE_URL, echo=True)
 
-# Create a sessionmaker factory for async sessions
 AsyncSessionLocal = sessionmaker(
     bind=engine, class_=AsyncSession, expire_on_commit=False
 )
@@ -50,7 +46,6 @@ AsyncSessionLocal = sessionmaker(
 #     return Session
 
 
-# Dependency function to get a DB session in routes
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSessionLocal() as session:  # use async context manager
+    async with AsyncSessionLocal() as session: 
         yield session

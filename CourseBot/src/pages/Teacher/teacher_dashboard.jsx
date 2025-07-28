@@ -15,7 +15,6 @@ import {
   Legend,
   Filler,
 } from "chart.js";
-import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import TeacherSidebar from "./teacher_sidebar"; // Adjust path as needed
 

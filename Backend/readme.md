@@ -70,3 +70,9 @@ This project is designed for your convenience, providing a template to build sca
 
 ## License
 This project has no license
+
+
+uvicorn main:app --reload
+
+
+uvicorn main:app --reload --host 127.0.0.1 --port 9090

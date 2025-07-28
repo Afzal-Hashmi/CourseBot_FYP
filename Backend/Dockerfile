@@ -1,26 +1,27 @@
-# Use the official Python image as the base image
-FROM python:3.10
+# Use a slim Python image for minimal footprint
+FROM python:3.10-slim
 
-# Prevents Python from writing .pyc files to disk
+# Set environment variables for Python
 ENV PYTHONDONTWRITEBYTECODE=1
-
-# Ensures that the output from Python is sent straight to the terminal without being buffered
 ENV PYTHONUNBUFFERED=1
 
-# Set the working directory inside the container
-WORKDIR /code
+# Set work directory
+WORKDIR /app
 
-# Copy the requirements file into the container
-COPY requirements.txt /code/
+# Install system dependencies and clean up
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install the dependencies from the requirements file
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy the rest of the project files into the container
-COPY . /code/
+# Copy the rest of the backend code
+COPY . .
 
-# Expose the port FastAPI will run on
+# Expose FastAPI port
 EXPOSE 8000
 
-# Run the FastAPI app with uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Default command
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

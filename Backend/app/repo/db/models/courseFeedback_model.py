@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.repo.db.base import Base
-from datetime import datetime
 
 
 class CourseFeedback(Base):

@@ -1,4 +1,3 @@
-// src/pages/Signup.jsx
 import InputField from "../components/InputField";
 import PasswordField from "../components/PasswordField";
 import Sidebar from "../components/Sidebar";

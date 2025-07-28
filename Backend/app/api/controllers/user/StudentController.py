@@ -1,16 +1,13 @@
 import traceback
-from fastapi import APIRouter, HTTPException, UploadFile,status, Depends
+from fastapi import HTTPException, UploadFile,status, Depends
 from fastapi.responses import JSONResponse
-
-from ....schemas.teacherSchema import course_schema
 from ....services.StudentServices import StudentService
 import cloudinary
-import cloudinary.uploader
+# import cloudinary.uploader
 import os
 from dotenv import load_dotenv
 load_dotenv()
 
-# Configure with your credentials
 cloudinary.config(
   cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
   api_key=os.getenv('CLOUDINARY_API_KEY'),
@@ -238,88 +235,19 @@ class StudentController:
                 },
                 status_code= status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-    async def update_profile_controller(self, file: UploadFile, form_Data: dict, current_user: dict):
+
+    async def fetch_course_controller(self, course_id: int, current_user:dict):
         try:
-            print("STEP 1: Check role:", current_user.get("roles"))
-            if current_user.get("roles") != "student":
-                print("STEP 2: User is not student")
+            if (current_user.get("roles") != "student"):
                 return JSONResponse(
                     content={
-                        "succeeded": False,
-                        "message": "You are not a student",
-                        "data": [],
-                        "httpStatusCode": status.HTTP_401_UNAUTHORIZED
+                        "succeeded":False,
+                        "message":"You are not a student",
+                        'data': [],
+                        'httpStatusCode': status.HTTP_401_UNAUTHORIZED
                     },
                     status_code=status.HTTP_401_UNAUTHORIZED
                 )
-
-            print("STEP 3: Handling file...")
-            try:
-                print("STEP 3.1: Uploading file to Cloudinary...")
-                upload_result = cloudinary.uploader.upload(file.file)
-                print(upload_result['secure_url'])
-                form_Data["profile_picture"] = upload_result['secure_url']
-                print("STEP 3.2: Upload success:", form_Data["profile_picture"])
-            except Exception as upload_error:
-                print("Upload error:", str(upload_error))
-                raise HTTPException(
-                    status_code=500,
-                    detail="Failed to upload profile image"
-                )
-            print("STEP 4: No file uploaded")
-
-            print("STEP 5: Form data complete:", form_Data)
-
-            # You can replace this with your actual service call
-            # response = await self.student_service.update_profile_service(form_Data, current_user)
-
-            return JSONResponse(
-                content={
-                    "succeeded": True,
-                    "message": "Debug: Profile updated successfully",
-                    "data": form_Data,
-                    "httpStatusCode": status.HTTP_200_OK,
-                },
-                status_code=status.HTTP_200_OK,
-            )
-
-        except HTTPException as e:
-            print("HTTPException:", e.detail)
-            return JSONResponse(
-                content={
-                    "succeeded": False,
-                    "message": e.detail,
-                    "data": [],
-                    "httpStatusCode": e.status_code,
-                },
-                status_code=e.status_code,
-            )
-
-        except Exception as e:
-            print("Unexpected error:", str(e))
-            traceback.print_exc()
-            return JSONResponse(
-                content={
-                    "succeeded": False,
-                    "message": "Unexpected server error: " + str(e),
-                    "data": [],
-                    "httpStatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                },
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-        
-    async def fetch_course_controller(self, course_id: int):
-        try:
-            # if (current_user.get("roles") != "student"):
-            #     return JSONResponse(
-            #         content={
-            #             "succeeded":False,
-            #             "message":"You are not a student",
-            #             'data': [],
-            #             'httpStatusCode': status.HTTP_401_UNAUTHORIZED
-            #         },
-            #         status_code=status.HTTP_401_UNAUTHORIZED
-            #     )
             response = await self.student_service.fetch_course_service(course_id)
 
             

@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
-  FaRobot,
-  FaHome,
-  FaBookOpen,
-  FaClipboardList,
   FaCog,
-  FaSignOutAlt,
   FaSearch,
   FaUserTie,
   FaPlus,
@@ -63,6 +58,51 @@ const StudentDashboard = () => {
       };
       fetchCourses();
     }
+  }, [navigate]);
+
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const token = Cookies.get("token");
+      const role = Cookies.get("role");
+      const userCookie = Cookies.get("user");
+      const user = userCookie ? JSON.parse(userCookie) : null;
+      if (!token || role !== "student") {
+        navigate("/");
+        return;
+      }
+      if (user) {
+        setUser(user);
+        const fetchCourses = async () => {
+          setLoading(true);
+          try {
+            const response = await fetch(
+              "http://localhost:8000/student/fetchcourses",
+              {
+                method: "GET",
+                headers: {
+                  accept: "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            if (response.ok) {
+              const responseData = await response.json();
+              setCourses(responseData.data);
+            } else {
+              console.error("Failed to fetch courses:", response.statusText);
+            }
+          } catch (error) {
+            console.error("Error fetching courses:", error);
+          } finally {
+            setLoading(false);
+          }
+        };
+        fetchCourses();
+      }
+    }, 100); // 100ms delay
+
+    return () => clearTimeout(timer);
   }, [navigate]);
 
   const handleCardClick = (courseId) => {
@@ -215,11 +255,10 @@ const StudentDashboard = () => {
                       </span>
                     </div>
                     <button
-                      className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base shadow-md hover:from-blue-700 hover:to-indigo-700 hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 ${
-                        enrolling[course.course_id]
+                      className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base shadow-md hover:from-blue-700 hover:to-indigo-700 hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 ${enrolling[course.course_id]
                           ? "opacity-50 cursor-not-allowed"
                           : ""
-                      }`}
+                        }`}
                       onClick={(event) =>
                         handleEnrollClick(event, course.course_id)
                       }
