@@ -172,6 +172,7 @@ For questions or support, please contact the project maintainer.
 After starting your containers for the first time, you need to:
 
 1. **Run Alembic migrations to create all tables:**
+
    ```bash
    docker-compose exec backend alembic upgrade head
    ```
@@ -188,20 +189,20 @@ After starting your containers for the first time, you need to:
 
 ---
 
-**Note:**  
+**Note:**
+
 - These steps are only needed the first time you set up a new database.
 - If you automate this with a migration or seed script, update this section accordingly.
 
-
-
 docker-compose exec db psql -U coursebot -d coursebotdb
-
 
 docker-compose exec backend /bin/bash
 alembic upgrade head
 
-
+docker exec -it coursebot-backend alembic upgrade head
 
 docker-compose exec db psql -U coursebot -d coursebotdb
+
 # Then at the psql prompt:
+
 INSERT INTO roles (role) VALUES ('teacher'), ('student');

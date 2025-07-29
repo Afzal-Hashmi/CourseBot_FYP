@@ -175,7 +175,7 @@ const Enroll = ({ course_id, onBack }) => {
 
             {/* Right: Sidebar (Teacher Details + Enroll Button) */}
             <div className="lg:col-span-1 bg-white rounded-lg shadow-sm p-4 sm:p-6 sticky top-4">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3 text-left">
+              {/* <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3 text-left">
                 Instructor Details
               </h3>
               <div className="grid grid-cols-1 gap-3 mb-3 sm:mb-4">
@@ -187,7 +187,7 @@ const Enroll = ({ course_id, onBack }) => {
                   <FaEnvelope className="text-purple-600" />
                   <span>{course.teacher_email || "N/A"}</span>
                 </div>
-              </div>
+              </div> */}
               <button
                 onClick={handleEnroll}
                 disabled={enrolling}
