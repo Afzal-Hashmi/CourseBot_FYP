@@ -83,12 +83,12 @@ export default function Login() {
           </p>
         </div>
 
-        <div className="flex items-center gap-5 mt-10">
+        {/* <div className="flex items-center gap-5 mt-10">
           <span className="text-sm">Connect with us:</span>
           <FaFacebook className="text-xl text-gray-400 hover:text-white cursor-pointer transition" />
           <FaTwitter className="text-xl text-gray-400 hover:text-white cursor-pointer transition" />
           <FaLinkedin className="text-xl text-gray-400 hover:text-white cursor-pointer transition" />
-        </div>
+        </div> */}
       </div>
 
       {/* Main Login Form */}
@@ -126,16 +126,6 @@ export default function Login() {
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1d72b8] focus:outline-none transition"
               required
             />
-
-            <div className="flex justify-between text-sm text-gray-600">
-              <label className="flex items-center gap-2">
-                <input type="checkbox" className="form-checkbox" />
-                Remember me
-              </label>
-              <a href="#" className="text-[#1d72b8] hover:underline">
-                Forgot Password?
-              </a>
-            </div>
 
             <button
               type="submit"

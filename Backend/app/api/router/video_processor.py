@@ -95,7 +95,6 @@
 # #     return name
 
 
-
 # # Updated video processor with Pinecone integration
 
 # import os
@@ -110,7 +109,6 @@
 # import shutil
 # from fastapi import HTTPException, UploadFile, File, Depends, status
 # from typing import List, Dict
-
 
 
 # # Initialize Pinecone (add your API key here)
@@ -183,7 +181,7 @@
 #     if existing_ids.vectors:
 #         print(f"Vectors already exist for {source}, skipping embedding")
 #         return
-    
+
 #     # Prepare vectors for upsert
 #     vectors = []
 #     for chunk in chunks:
@@ -196,36 +194,36 @@
 #                 "text": chunk["text"]  # Store text in metadata for retrieval
 #             }
 #         })
-    
+
 #     # Upsert to Pinecone in batches
 #     batch_size = 100
 #     for i in range(0, len(vectors), batch_size):
 #         batch = vectors[i:i + batch_size]
 #         index.upsert(vectors=batch)
-    
+
 #     print(f"Successfully embedded and stored {len(vectors)} chunks for {source}")
 
 # def process_video_file(video_file_path):
 #     name = sanitize_name(os.path.splitext(os.path.basename(video_file_path))[0])
 #     audio_path = os.path.join(BASE_DIR, f"{name}.wav")
-    
+
 #     # Extract audio and transcribe
 #     extract_audio(video_file_path, audio_path)
 #     transcript = transcribe_audio(audio_path)
-    
+
 #     # Save transcript for reference
 #     transcript_path = os.path.join(BASE_DIR, f"{name}.txt")
 #     with open(transcript_path, "w") as f:
 #         f.write(transcript)
-    
+
 #     # Chunk text and embed
 #     chunks = chunk_text(transcript, name)
 #     embed_and_store_chunks(chunks, name)
-    
+
 #     # Clean up audio file to save space
 #     if os.path.exists(audio_path):
 #         os.remove(audio_path)
-    
+
 #     return name
 
 # def ask_ollama(model_name, query, contexts, metadatas):
@@ -256,47 +254,44 @@
 #         return f"❌ Failed to contact model: {str(e)}"
 
 
-
 import http.client
 import json
 
 conn = http.client.HTTPSConnection("api.vectara.io")
-payload = json.dumps({
-  "query": "What are the carbon reduction efforts by EU banks in 2023?",
-  "search": {
-    "limit": 50
-  },
-  "generation": {
-    "generation_preset_name": "vectara-summary-ext-v1.2.0",
-    "max_used_search_results": 5,
-    "prompt_template": "[\n  {\"role\": \"system\", \"content\": \"You are a helpful search assistant.\"},\n  #foreach ($qResult in $vectaraQueryResults)\n     {\"role\": \"user\", \"content\": \"Given the $vectaraIdxWord[$foreach.index] search result.\"},\n     {\"role\": \"assistant\", \"content\": \"${qResult.getText()}\" },\n  #end\n  {\"role\": \"user\", \"content\": \"Generate a summary for the query '${vectaraQuery}' based on the above results.\"}\n]\n",
-    "max_response_characters": 300,
-    "response_language": "auto",
-    "model_parameters": {
-      "llm_name": "gpt4",
-      "max_tokens": 0,
-      "temperature": 0,
-      "frequency_penalty": 0,
-      "presence_penalty": 0
-    },
-    "citations": {
-      "style": "none",
-      "url_pattern": "https://vectara.com/documents/{doc.id}",
-      "text_pattern": "{doc.title}"
-    },
-    "enable_factual_consistency_score": True
-  },
-  "chat": {
-    "store": True
-  },
-  "save_history": True,
-  "intelligent_query_rewriting": False,
-  "stream_response": False
-})
+payload = json.dumps(
+    {
+        "query": "What are the carbon reduction efforts by EU banks in 2023?",
+        "search": {"limit": 50},
+        "generation": {
+            "generation_preset_name": "vectara-summary-ext-v1.2.0",
+            "max_used_search_results": 5,
+            "prompt_template": '[\n  {"role": "system", "content": "You are a helpful search assistant."},\n  #foreach ($qResult in $vectaraQueryResults)\n     {"role": "user", "content": "Given the $vectaraIdxWord[$foreach.index] search result."},\n     {"role": "assistant", "content": "${qResult.getText()}" },\n  #end\n  {"role": "user", "content": "Generate a summary for the query \'${vectaraQuery}\' based on the above results."}\n]\n',
+            "max_response_characters": 300,
+            "response_language": "auto",
+            "model_parameters": {
+                "llm_name": "gpt4",
+                "max_tokens": 0,
+                "temperature": 0,
+                "frequency_penalty": 0,
+                "presence_penalty": 0,
+            },
+            "citations": {
+                "style": "none",
+                "url_pattern": "https://vectara.com/documents/{doc.id}",
+                "text_pattern": "{doc.title}",
+            },
+            "enable_factual_consistency_score": True,
+        },
+        "chat": {"store": True},
+        "save_history": True,
+        "intelligent_query_rewriting": False,
+        "stream_response": False,
+    }
+)
 headers = {
-  'Content-Type': 'application/json',
-  'Accept': 'application/json',
-  'x-api-key': '<x-api-key>'
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "x-api-key": "<x-api-key>",
 }
 conn.request("POST", "/v2/chats", payload, headers)
 res = conn.getresponse()
@@ -304,48 +299,45 @@ data = res.read()
 print(data.decode("utf-8"))
 
 
-
-
 {
-  "query": "generate 5 MCQs on encapsulation?",
-  "search": {
-    "corpora": [
-      {
-        "corpus_key": "Tester",
-        "metadata_filter": "",
-        "lexical_interpolation": 0.025
-      }
-    ],
-    "limit": 50,
-    "context_configuration": {
-      "sentences_before": 2,
-      "sentences_after": 2,
-      "start_tag": "%START_SNIPPET%",
-      "end_tag": "%END_SNIPPET%"
-    }
-  },
-  "generation": {
-    "generation_preset_name": "vectara-summary-ext-24-05-sml",
-    "max_used_search_results": 5,
-    "prompt_template": "[{\"role\": \"system\", \"content\": \"You are a helpful educational assistant.\"}, #foreach ($qResult in $vectaraQueryResults) {\"role\": \"user\", \"content\": \"${qResult.getText()}\"}, #end {\"role\": \"user\", \"content\": \"Based on the above content, answer: '${vectaraQuery}'\"}]",
-    "max_response_characters": 500,
-    "response_language": "auto",
-    "model_parameters": {
-      "max_tokens": 512,
-      "temperature": 0.1,
-      "frequency_penalty": 0.0,
-      "presence_penalty": 0.0
+    "query": "generate 5 MCQs on encapsulation?",
+    "search": {
+        "corpora": [
+            {
+                # "corpus_key": "Tester",
+                "corpus_key": "umt",
+                "metadata_filter": "",
+                "lexical_interpolation": 0.025,
+            }
+        ],
+        "limit": 50,
+        "context_configuration": {
+            "sentences_before": 2,
+            "sentences_after": 2,
+            "start_tag": "%START_SNIPPET%",
+            "end_tag": "%END_SNIPPET%",
+        },
     },
-    "citations": {
-      "style": "numeric",
-      "url_pattern": "",
-      "text_pattern": "[{index}]"
+    "generation": {
+        "generation_preset_name": "vectara-summary-ext-24-05-sml",
+        "max_used_search_results": 5,
+        "prompt_template": '[{"role": "system", "content": "You are a helpful educational assistant."}, #foreach ($qResult in $vectaraQueryResults) {"role": "user", "content": "${qResult.getText()}"}, #end {"role": "user", "content": "Based on the above content, answer: \'${vectaraQuery}\'"}]',
+        "max_response_characters": 500,
+        "response_language": "auto",
+        "model_parameters": {
+            "max_tokens": 512,
+            "temperature": 0.1,
+            "frequency_penalty": 0.0,
+            "presence_penalty": 0.0,
+        },
+        "citations": {
+            "style": "numeric",
+            "url_pattern": "",
+            "text_pattern": "[{index}]",
+        },
+        "enable_factual_consistency_score": true,
     },
-    "enable_factual_consistency_score": true
-  },
-  "chat": {
-    "store": true
-  },
-  "save_history": true,
-  "stream_response": false
+    "chat": {"store": true},
+    "save_history": true,
+    "stream_response": false,
 }

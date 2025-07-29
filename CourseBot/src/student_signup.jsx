@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaRobot, FaEye, FaEyeSlash, FaUserCircle } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function StudentSignUp() {
   const [formData, setFormData] = useState({
@@ -11,6 +11,7 @@ export default function StudentSignUp() {
     confirmPassword: "",
     profilePicture: null,
   });
+  const navigate = useNavigate();
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -94,6 +95,7 @@ export default function StudentSignUp() {
         profilePicture: null,
       });
       setImagePreview(null);
+      navigate("/");
     } catch (err) {
       setError(err.message || "Registration failed.");
     } finally {

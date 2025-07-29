@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaRobot, FaEye, FaEyeSlash, FaUserCircle } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function TeacherSignUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,6 +17,7 @@ export default function TeacherSignUp() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -95,6 +96,7 @@ export default function TeacherSignUp() {
         profilePicture: null,
       });
       setImagePreview(null);
+      navigate("/");
     } catch (err) {
       setError(err.message);
     } finally {

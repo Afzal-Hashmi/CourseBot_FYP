@@ -26,7 +26,7 @@ import {
 import Cookie from "js-cookie";
 import { Link, useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import FloatingVideoPlayer from "./videoPlayer"
+import FloatingVideoPlayer from "./videoPlayer";
 
 const CourseContentPage = () => {
   const { course_id } = useParams();
@@ -40,7 +40,7 @@ const CourseContentPage = () => {
     chats: true,
   });
   const [chatMessages, setChatMessages] = useState([]);
-  const [contentItems, setContentItems] = useState([])
+  const [contentItems, setContentItems] = useState([]);
   const [chatQuestion, setChatQuestion] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isChatMode, setIsChatMode] = useState(false);
@@ -54,7 +54,7 @@ const CourseContentPage = () => {
   const [isUploadLoading, setIsUploadLoading] = useState(false);
   const [contentError, setContentError] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [url, setUrl] = useState("")
+  const [url, setUrl] = useState("");
 
   const chatEndRef = useRef(null);
   const chatInputRef = useRef(null);
@@ -76,16 +76,19 @@ const CourseContentPage = () => {
         setIsLoadingChats(true);
         const token = Cookie.get("token");
         if (!token) {
-          navigate("/")
+          navigate("/");
           throw new Error("No authentication token found. Please log in.");
         }
 
-        const response = await fetch(`http://localhost:8000/teacher/list/chats/${course_id}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `http://localhost:8000/teacher/list/chats/${course_id}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!response.ok) {
           const errorData = await response.json();
@@ -95,7 +98,9 @@ const CourseContentPage = () => {
         const data = await response.json();
         const formattedChats = (data.chats || []).map((chat) => ({
           chat_id: chat.chat_id,
-          title: chat.title ? chat.title.slice(0, 30) + (chat.title.length > 30 ? "..." : "") : "Untitled Chat",
+          title: chat.title
+            ? chat.title.slice(0, 30) + (chat.title.length > 30 ? "..." : "")
+            : "Untitled Chat",
           date: chat.date,
         }));
         setRecentChats(formattedChats);
@@ -121,12 +126,15 @@ const CourseContentPage = () => {
           throw new Error("No authentication token found. Please log in.");
         }
 
-        const response = await fetch(`http://localhost:8000/teacher/getcontent/${course_id}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `http://localhost:8000/teacher/getcontent/${course_id}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!response.ok) {
           const errorData = await response.json();
@@ -156,12 +164,15 @@ const CourseContentPage = () => {
         throw new Error("No authentication token found. Please log in.");
       }
 
-      const response = await fetch(`http://localhost:8000/teacher/chat/${chatId}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `http://localhost:8000/teacher/chat/${chatId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -172,16 +183,24 @@ const CourseContentPage = () => {
       const formattedMessages = (data.messages || []).map((turn) => ({
         question: turn.question,
         answer: turn.answer,
-        timestamp: new Date(turn.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        timestamp: new Date(turn.created_at).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
         chat_id: turn.chat_id,
         turn_id: turn.turn_id,
       }));
 
       setCurrentChatId(chatId);
-      setCurrentTurnId(data.turns && data.turns.length > 0 ? data.turns[data.turns.length - 1].id : null);
+      setCurrentTurnId(
+        data.turns && data.turns.length > 0
+          ? data.turns[data.turns.length - 1].id
+          : null
+      );
       setCurrentChatTitle(
         data.turns && data.turns.length > 0
-          ? data.turns[0].query.slice(0, 50) + (data.turns[0].query.length > 50 ? "..." : "")
+          ? data.turns[0].query.slice(0, 50) +
+              (data.turns[0].query.length > 50 ? "..." : "")
           : "Untitled Chat"
       );
       setChatMessages(formattedMessages);
@@ -213,7 +232,10 @@ const CourseContentPage = () => {
     const newMessage = {
       question: chatQuestion,
       isLoading: true,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
     };
 
     setIsLoading(true);
@@ -234,14 +256,17 @@ const CourseContentPage = () => {
         requestBody.turn_id = currentTurnId;
       }
 
-      const response = await fetch(`http://localhost:8000/teacher/ask/${course_id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestBody),
-      });
+      const response = await fetch(
+        `http://localhost:8000/teacher/ask/${course_id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -252,7 +277,10 @@ const CourseContentPage = () => {
 
       if (data.chat_id && !currentChatId) {
         setCurrentChatId(data.chat_id);
-        setCurrentChatTitle(currentQuestion.slice(0, 50) + (currentQuestion.length > 50 ? "..." : ""));
+        setCurrentChatTitle(
+          currentQuestion.slice(0, 50) +
+            (currentQuestion.length > 50 ? "..." : "")
+        );
       }
       if (data.turn_id) {
         setCurrentTurnId(data.turn_id);
@@ -269,28 +297,27 @@ const CourseContentPage = () => {
         }
       }
       if (firstUrl) {
-        setUrl(firstUrl)
-        console.log(url)
+        setUrl(firstUrl);
+        console.log(url);
         localStorage.setItem("url", firstUrl);
       }
 
       if (!firstUrl) {
-        setUrl("")
-        localStorage.removeItem("url")
+        setUrl("");
+        localStorage.removeItem("url");
       }
-
 
       setChatMessages((prevMessages) =>
         prevMessages.map((msg, index) =>
           index === prevMessages.length - 1
             ? {
-              ...msg,
-              isLoading: false,
-              answer: data.answer || "No answer provided",
-              chat_id: data.chat_id,
-              turn_id: data.turn_id,
-              // url: data.search_results
-            }
+                ...msg,
+                isLoading: false,
+                answer: data.answer || "No answer provided",
+                chat_id: data.chat_id,
+                turn_id: data.turn_id,
+                // url: data.search_results
+              }
             : msg
         )
       );
@@ -298,13 +325,17 @@ const CourseContentPage = () => {
       if (data.chat_id) {
         const newChatEntry = {
           chat_id: data.chat_id,
-          title: currentQuestion.slice(0, 30) + (currentQuestion.length > 30 ? "..." : ""),
+          title:
+            currentQuestion.slice(0, 30) +
+            (currentQuestion.length > 30 ? "..." : ""),
           date: new Date().toISOString(),
           last_message: currentQuestion,
         };
 
         setRecentChats((prev) => {
-          const existingChatIndex = prev.findIndex((chat) => chat.chat_id === data.chat_id);
+          const existingChatIndex = prev.findIndex(
+            (chat) => chat.chat_id === data.chat_id
+          );
           if (existingChatIndex >= 0) {
             const updatedChats = [...prev];
             updatedChats[existingChatIndex] = {
@@ -325,10 +356,10 @@ const CourseContentPage = () => {
         prevMessages.map((msg, index) =>
           index === prevMessages.length - 1
             ? {
-              ...msg,
-              isLoading: false,
-              answer: "Error: Failed to get response",
-            }
+                ...msg,
+                isLoading: false,
+                answer: "Error: Failed to get response",
+              }
             : msg
         )
       );
@@ -355,12 +386,42 @@ const CourseContentPage = () => {
 
   const getTypeColor = (type) => {
     const colors = {
-      pdf: { bg: "bg-red-50", text: "text-red-600", border: "border-red-100", hover: "hover:bg-red-100" },
-      video: { bg: "bg-blue-50", text: "text-blue-600", border: "border-blue-100", hover: "hover:bg-blue-100" },
-      quiz: { bg: "bg-yellow-50", text: "text-yellow-600", border: "border-yellow-100", hover: "hover:bg-yellow-100" },
-      pptx: { bg: "bg-orange-50", text: "text-orange-600", border: "border-orange-100", hover: "hover:bg-orange-100" },
-      docx: { bg: "bg-indigo-50", text: "text-indigo-600", border: "border-indigo-100", hover: "hover:bg-indigo-100" },
-      default: { bg: "bg-gray-50", text: "text-gray-600", border: "border-gray-100", hover: "hover:bg-gray-200" },
+      pdf: {
+        bg: "bg-red-50",
+        text: "text-red-600",
+        border: "border-red-100",
+        hover: "hover:bg-red-100",
+      },
+      video: {
+        bg: "bg-blue-50",
+        text: "text-blue-600",
+        border: "border-blue-100",
+        hover: "hover:bg-blue-100",
+      },
+      quiz: {
+        bg: "bg-yellow-50",
+        text: "text-yellow-600",
+        border: "border-yellow-100",
+        hover: "hover:bg-yellow-100",
+      },
+      pptx: {
+        bg: "bg-orange-50",
+        text: "text-orange-600",
+        border: "border-orange-100",
+        hover: "hover:bg-orange-100",
+      },
+      docx: {
+        bg: "bg-indigo-50",
+        text: "text-indigo-600",
+        border: "border-indigo-100",
+        hover: "hover:bg-indigo-100",
+      },
+      default: {
+        bg: "bg-gray-50",
+        text: "text-gray-600",
+        border: "border-gray-100",
+        hover: "hover:bg-gray-200",
+      },
     };
     return colors[type] || colors.default;
   };
@@ -372,7 +433,7 @@ const CourseContentPage = () => {
       quiz: "Quiz",
       pptx: "PowerPoint",
       docx: "Word Doc",
-      default: "Resource"
+      default: "Resource",
     };
     return labels[type] || labels.default;
   };
@@ -383,17 +444,23 @@ const CourseContentPage = () => {
         item.content_title?.toLowerCase().includes(searchQuery.toLowerCase()) &&
         (activeFilter === "all" || item.content_type === activeFilter)
     )
-    .sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date));
+    .sort(
+      (a, b) =>
+        new Date(b.created_at || b.date) - new Date(a.created_at || a.date)
+    );
 
   const deleteContent = async (id) => {
     try {
       const token = Cookie.get("token");
-      const response = await fetch(`http://localhost:8000/teacher/deletecontent/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `http://localhost:8000/teacher/deletecontent/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to delete content");
@@ -431,11 +498,14 @@ const CourseContentPage = () => {
       formDataToSend.append("file", formData.file);
       formDataToSend.append("course_id", parseInt(course_id));
 
-      const response = await fetch("http://localhost:8000/teacher/uploadcontent/", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formDataToSend,
-      });
+      const response = await fetch(
+        "http://localhost:8000/teacher/uploadcontent/",
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formDataToSend,
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -510,7 +580,10 @@ const CourseContentPage = () => {
           listItems = [];
         }
         elements.push(
-          <h1 key={`h1-${index}`} className="text-xl font-bold text-gray-900 mb-3 mt-4">
+          <h1
+            key={`h1-${index}`}
+            className="text-xl font-bold text-gray-900 mb-3 mt-4"
+          >
             {formattedLine.replace(/^# /, "")}
           </h1>
         );
@@ -528,7 +601,10 @@ const CourseContentPage = () => {
           listItems = [];
         }
         elements.push(
-          <h2 key={`h2-${index}`} className="text-lg font-semibold text-gray-800 mb-2 mt-3">
+          <h2
+            key={`h2-${index}`}
+            className="text-lg font-semibold text-gray-800 mb-2 mt-3"
+          >
             {formattedLine.replace(/^## /, "")}
           </h2>
         );
@@ -546,16 +622,25 @@ const CourseContentPage = () => {
           listItems = [];
         }
         elements.push(
-          <h3 key={`h3-${index}`} className="text-md font-semibold text-gray-700 mb-2 mt-2">
+          <h3
+            key={`h3-${index}`}
+            className="text-md font-semibold text-gray-700 mb-2 mt-2"
+          >
             {formattedLine.replace(/^### /, "")}
           </h3>
         );
         return;
       }
 
-      formattedLine = formattedLine.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+      formattedLine = formattedLine.replace(
+        /\*\*(.*?)\*\*/g,
+        "<strong>$1</strong>"
+      );
       formattedLine = formattedLine.replace(/\*(.*?)\*/g, "<em>$1</em>");
-      formattedLine = formattedLine.replace(/`(.*?)`/g, "<code class='bg-gray-100 px-1 py-0.5 rounded text-sm'>$1</code>");
+      formattedLine = formattedLine.replace(
+        /`(.*?)`/g,
+        "<code class='bg-gray-100 px-1 py-0.5 rounded text-sm'>$1</code>"
+      );
 
       if (formattedLine.startsWith("- ") || formattedLine.startsWith("* ")) {
         if (!inList) {
@@ -563,8 +648,15 @@ const CourseContentPage = () => {
           inList = true;
         }
         listItems.push(
-          <li key={`li-${index}`} className="text-sm text-gray-700 leading-relaxed">
-            <span dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^[*-] /, "") }} />
+          <li
+            key={`li-${index}`}
+            className="text-sm text-gray-700 leading-relaxed"
+          >
+            <span
+              dangerouslySetInnerHTML={{
+                __html: formattedLine.replace(/^[*-] /, ""),
+              }}
+            />
           </li>
         );
       } else if (formattedLine.match(/^\d+\. /)) {
@@ -573,8 +665,15 @@ const CourseContentPage = () => {
           inList = true;
         }
         listItems.push(
-          <li key={`li-${index}`} className="text-sm text-gray-700 leading-relaxed">
-            <span dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^\d+\. /, "") }} />
+          <li
+            key={`li-${index}`}
+            className="text-sm text-gray-700 leading-relaxed"
+          >
+            <span
+              dangerouslySetInnerHTML={{
+                __html: formattedLine.replace(/^\d+\. /, ""),
+              }}
+            />
           </li>
         );
       } else {
@@ -636,22 +735,38 @@ const CourseContentPage = () => {
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 font-inter">
       <style jsx>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
-        .font-inter { font-family: 'Inter', sans-serif; }
-
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { 
-          background: rgba(0, 0, 0, 0.1); 
-          border-radius: 3px; 
+        .font-inter {
+          font-family: "Inter", sans-serif;
         }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.2); }
 
-        .chat-message { animation: slideUp 0.3s ease-out; }
+        .custom-scroll::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.1);
+          border-radius: 3px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+          background: rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-message {
+          animation: slideUp 0.3s ease-out;
+        }
         @keyframes slideUp {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
 
         .glass-effect {
@@ -681,12 +796,11 @@ const CourseContentPage = () => {
         }
       `}</style>
 
-
-
       {/* Enhanced Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 sm:w-80 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white shadow-2xl transition-transform duration-300 z-50 sidebar ${isSidebarOpen ? "open" : ""
-          }`}
+        className={`fixed top-0 left-0 h-full w-64 sm:w-80 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white shadow-2xl transition-transform duration-300 z-50 sidebar ${
+          isSidebarOpen ? "open" : ""
+        }`}
       >
         <div className="p-6 h-full flex flex-col">
           {/* Sidebar Toggle Button for Mobile */}
@@ -733,26 +847,57 @@ const CourseContentPage = () => {
                 className="flex justify-between items-center w-full py-3 text-slate-300 hover:text-white transition-colors"
                 onClick={() => toggleSection("filters")}
               >
-                <h3 className="text-sm font-semibold uppercase tracking-wider">Content Filters</h3>
-                {expandedSections.filters ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
+                <h3 className="text-sm font-semibold uppercase tracking-wider">
+                  Content Filters
+                </h3>
+                {expandedSections.filters ? (
+                  <FaChevronUp size={12} />
+                ) : (
+                  <FaChevronDown size={12} />
+                )}
               </button>
               {expandedSections.filters && (
                 <div className="space-y-2 mt-3">
                   {[
-                    { key: "all", label: "All Content", icon: FaFileAlt, color: "blue" },
-                    { key: "pdf", label: "PDF Documents", icon: FaFilePdf, color: "red" },
-                    { key: "video", label: "Video Lectures", icon: FaVideo, color: "blue" },
-                    { key: "quiz", label: "Quizzes", icon: FaQuestionCircle, color: "yellow" },
-                    { key: "pptx", label: "PowerPoint", icon: FaFilePowerpoint, color: "orange" },
-                    { key: "docx", label: "Word Docs", icon: FaFileWord, color: "indigo" },
+                    {
+                      key: "all",
+                      label: "All Content",
+                      icon: FaFileAlt,
+                      color: "blue",
+                    },
+                    {
+                      key: "pdf",
+                      label: "PDF Documents",
+                      icon: FaFilePdf,
+                      color: "red",
+                    },
+                    {
+                      key: "video",
+                      label: "Video Lectures",
+                      icon: FaVideo,
+                      color: "blue",
+                    },
+                    {
+                      key: "pptx",
+                      label: "PowerPoint",
+                      icon: FaFilePowerpoint,
+                      color: "orange",
+                    },
+                    {
+                      key: "docx",
+                      label: "Word Docs",
+                      icon: FaFileWord,
+                      color: "indigo",
+                    },
                   ].map((filter) => (
                     <button
                       key={filter.key}
                       onClick={() => setActiveFilter(filter.key)}
-                      className={`w-full text-left px-4 py-2.5 rounded-xl flex items-center gap-3 text-sm font-medium transition-all ${activeFilter === filter.key
-                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
-                        : "text-slate-200 hover:bg-slate-700/50"
-                        }`}
+                      className={`w-full text-left px-4 py-2.5 rounded-xl flex items-center gap-3 text-sm font-medium transition-all ${
+                        activeFilter === filter.key
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+                          : "text-slate-200 hover:bg-slate-700/50"
+                      }`}
                     >
                       <filter.icon size={14} />
                       {filter.label}
@@ -768,15 +913,23 @@ const CourseContentPage = () => {
                 className="flex justify-between items-center w-full py-3 text-slate-300 hover:text-white transition-colors"
                 onClick={() => toggleSection("recent")}
               >
-                <h3 className="text-sm font-semibold uppercase tracking-wider">Recent Content</h3>
-                {expandedSections.recent ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
+                <h3 className="text-sm font-semibold uppercase tracking-wider">
+                  Recent Content
+                </h3>
+                {expandedSections.recent ? (
+                  <FaChevronUp size={12} />
+                ) : (
+                  <FaChevronDown size={12} />
+                )}
               </button>
               {expandedSections.recent && (
                 <div className="space-y-2 mt-3 max-h-64 overflow-y-auto custom-scroll">
                   {isContentLoading ? (
                     <div className="flex items-center justify-center py-8">
                       <LoadingSpinner size={16} className="text-slate-400" />
-                      <span className="ml-2 text-sm text-slate-400">Loading content...</span>
+                      <span className="ml-2 text-sm text-slate-400">
+                        Loading content...
+                      </span>
                     </div>
                   ) : contentItems.length === 0 ? (
                     <div className="text-center py-4 text-slate-400 text-sm">
@@ -790,8 +943,9 @@ const CourseContentPage = () => {
                         onClick={() => handleCardClick(item)}
                       >
                         <div
-                          className={`p-2 rounded-lg ${getTypeColor(item.content_type).bg} ${getTypeColor(item.content_type).text
-                            }`}
+                          className={`p-2 rounded-lg ${
+                            getTypeColor(item.content_type).bg
+                          } ${getTypeColor(item.content_type).text}`}
                         >
                           {getTypeIcon(item.content_type, 14)}
                         </div>
@@ -813,15 +967,23 @@ const CourseContentPage = () => {
                 className="flex justify-between items-center w-full py-3 text-slate-300 hover:text-white transition-colors"
                 onClick={() => toggleSection("chats")}
               >
-                <h3 className="text-sm font-semibold uppercase tracking-wider">Recent Chats</h3>
-                {expandedSections.chats ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
+                <h3 className="text-sm font-semibold uppercase tracking-wider">
+                  Recent Chats
+                </h3>
+                {expandedSections.chats ? (
+                  <FaChevronUp size={12} />
+                ) : (
+                  <FaChevronDown size={12} />
+                )}
               </button>
               {expandedSections.chats && (
                 <div className="space-y-2 mt-3 max-h-64 overflow-y-auto custom-scroll">
                   {isLoadingChats ? (
                     <div className="flex items-center justify-center py-8">
                       <LoadingSpinner size={16} className="text-slate-400" />
-                      <span className="ml-2 text-sm text-slate-400">Loading chats...</span>
+                      <span className="ml-2 text-sm text-slate-400">
+                        Loading chats...
+                      </span>
                     </div>
                   ) : recentChats.length === 0 ? (
                     <div className="text-center py-4 text-slate-400 text-sm">
@@ -857,8 +1019,9 @@ const CourseContentPage = () => {
 
       {/* Main Content */}
       <main
-        className={`flex-1 transition-all duration-300 ${isSidebarOpen ? "ml-64 sm:ml-80" : "ml-0 sm:ml-80"
-          } ${isChatExpanded ? "p-0" : "p-4 sm:p-10"}`}
+        className={`flex-1 transition-all duration-300 ${
+          isSidebarOpen ? "ml-64 sm:ml-80" : "ml-0 sm:ml-80"
+        } ${isChatExpanded ? "p-0" : "p-4 sm:p-10"}`}
       >
         {/* Mobile Sidebar Toggle Button */}
         <button
@@ -898,16 +1061,23 @@ const CourseContentPage = () => {
               <ContentSkeleton />
             ) : contentError ? (
               <div className="glass-effect rounded-3xl p-12 text-center border shadow-xl">
-                <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-red-100 to-red-200 rounded-full flex items-center justify-center">
-                  <FaTimes size={32} className="text-red-600" />
+                <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
+                  <FaFileAlt size={32} className="text-blue-600" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-3">Error Loading Content</h3>
-                <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">{contentError}</p>
+                <h3 className="text-2xl font-bold text-slate-800 mb-3">
+                  No content found
+                </h3>
+                <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">
+                  {searchQuery
+                    ? `No matches found for "${searchQuery}". Try different keywords.`
+                    : "Ready to add your first piece of content? Start building your course library!"}
+                </p>
                 <button
-                  onClick={() => window.location.reload()}
+                  onClick={() => setShowModal(true)}
                   className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl flex items-center gap-3 text-sm font-semibold mx-auto hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105 shadow-lg"
                 >
-                  Try Again
+                  <FaPlus size={16} />
+                  Add Your First Content
                 </button>
               </div>
             ) : filteredContent.length > 0 ? (
@@ -915,8 +1085,9 @@ const CourseContentPage = () => {
                 {filteredContent.map((item) => (
                   <div
                     key={item.content_id}
-                    className={`group relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border ${getTypeColor(item.content_type).border
-                      } cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-1`}
+                    className={`group relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border ${
+                      getTypeColor(item.content_type).border
+                    } cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-1`}
                     onClick={() => handleCardClick(item)}
                   >
                     <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
@@ -933,8 +1104,9 @@ const CourseContentPage = () => {
                     <div className="p-6">
                       <div className="flex items-start gap-4">
                         <div
-                          className={`p-3 rounded-xl ${getTypeColor(item.content_type).bg} ${getTypeColor(item.content_type).text
-                            } shadow-sm`}
+                          className={`p-3 rounded-xl ${
+                            getTypeColor(item.content_type).bg
+                          } ${getTypeColor(item.content_type).text} shadow-sm`}
                         >
                           {getTypeIcon(item.content_type, 20)}
                         </div>
@@ -945,7 +1117,9 @@ const CourseContentPage = () => {
                           >
                             {item.content_title}
                           </h3>
-                          <p className="text-xs text-slate-500 mb-2">{getTypeLabel(item.content_type)}</p>
+                          <p className="text-xs text-slate-500 mb-2">
+                            {getTypeLabel(item.content_type)}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -957,7 +1131,9 @@ const CourseContentPage = () => {
                 <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
                   <FaFileAlt size={32} className="text-blue-600" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-3">No content found</h3>
+                <h3 className="text-2xl font-bold text-slate-800 mb-3">
+                  No content found
+                </h3>
                 <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">
                   {searchQuery
                     ? `No matches found for "${searchQuery}". Try different keywords.`
@@ -977,23 +1153,39 @@ const CourseContentPage = () => {
 
         {/* Chat Interface */}
         <section
-          className={`transition-all duration-500 ${isChatExpanded ? "fixed inset-0 left-80 sm:left-80 bg-white z-40" : isChatMode ? "mt-6" : "mt-12 max-w-4xl mx-auto"
-            }`}
+          className={`transition-all duration-500 ${
+            isChatExpanded
+              ? "fixed inset-0 left-80 sm:left-80 bg-white z-40"
+              : isChatMode
+              ? "mt-6"
+              : "mt-12 max-w-4xl mx-auto"
+          }`}
         >
           <div
-            className={`${isChatExpanded ? "h-full flex flex-col" : "glass-effect rounded-3xl border shadow-xl"
-              } ${!isChatExpanded ? "p-8" : ""}`}
+            className={`${
+              isChatExpanded
+                ? "h-full flex flex-col"
+                : "glass-effect rounded-3xl border shadow-xl"
+            } ${!isChatExpanded ? "p-8" : ""}`}
           >
             <div
-              className={`flex items-center justify-between ${isChatExpanded ? "p-6 border-b bg-white/95 backdrop-blur-sm" : "mb-6"}`}
+              className={`flex items-center justify-between ${
+                isChatExpanded
+                  ? "p-6 border-b bg-white/95 backdrop-blur-sm"
+                  : "mb-6"
+              }`}
             >
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-lg">
                   <FaRobot className="text-white" size={20} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-800">{currentChatTitle || "AI Assistant"}</h3>
-                  <p className="text-sm text-slate-500">Ask anything about your course content</p>
+                  <h3 className="text-xl font-bold text-slate-800">
+                    {currentChatTitle || "AI Assistant"}
+                  </h3>
+                  <p className="text-sm text-slate-500">
+                    Ask anything about your course content
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -1003,7 +1195,11 @@ const CourseContentPage = () => {
                     className="p-3 hover:bg-slate-100 rounded-xl transition-colors"
                     title={isChatExpanded ? "Minimize chat" : "Expand chat"}
                   >
-                    {isChatExpanded ? <FaCompress size={16} /> : <FaExpand size={16} />}
+                    {isChatExpanded ? (
+                      <FaCompress size={16} />
+                    ) : (
+                      <FaExpand size={16} />
+                    )}
                   </button>
                 )}
                 {isChatMode && (
@@ -1019,16 +1215,24 @@ const CourseContentPage = () => {
             </div>
 
             <div
-              className={`${isChatExpanded ? "flex-1 overflow-y-auto px-6" : "max-h-96 overflow-y-auto"
-                } custom-scroll ${chatMessages.length > 0 ? "mb-6" : ""}`}
+              className={`${
+                isChatExpanded
+                  ? "flex-1 overflow-y-auto px-6"
+                  : "max-h-96 overflow-y-auto"
+              } custom-scroll ${chatMessages.length > 0 ? "mb-6" : ""}`}
             >
               {chatMessages.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
                     <FaRobot size={24} className="text-blue-600" />
                   </div>
-                  <h4 className="text-lg font-semibold text-slate-700 mb-2">Ready to help!</h4>
-                  <p className="text-slate-500">Ask me anything about your course content, and I'll provide insights and answers.</p>
+                  <h4 className="text-lg font-semibold text-slate-700 mb-2">
+                    Ready to help!
+                  </h4>
+                  <p className="text-slate-500">
+                    Ask me anything about your course content, and I'll provide
+                    insights and answers.
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-6 py-4">
@@ -1037,8 +1241,12 @@ const CourseContentPage = () => {
                       <div className="flex justify-end mb-4">
                         <div className="flex items-start gap-3 max-w-[80%]">
                           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl rounded-br-md px-4 py-3 text-white shadow-lg">
-                            <p className="text-sm font-medium">{message.question}</p>
-                            <p className="text-xs text-blue-100 mt-2">{message.timestamp}</p>
+                            <p className="text-sm font-medium">
+                              {message.question}
+                            </p>
+                            <p className="text-xs text-blue-100 mt-2">
+                              {message.timestamp}
+                            </p>
                           </div>
                           <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center shadow-md">
                             <FaUser className="text-white" size={12} />
@@ -1054,11 +1262,16 @@ const CourseContentPage = () => {
                             <div className="bg-slate-50 border border-slate-200 rounded-2xl rounded-bl-md px-4 py-3 shadow-md">
                               {message.isLoading ? (
                                 <div className="flex items-center gap-2 text-slate-600">
-                                  <FaSpinner className="animate-spin" size={14} />
+                                  <FaSpinner
+                                    className="animate-spin"
+                                    size={14}
+                                  />
                                   <span className="text-sm">Thinking...</span>
                                 </div>
                               ) : (
-                                <div className="prose prose-sm max-w-none">{renderMarkdown(message.answer)}</div>
+                                <div className="prose prose-sm max-w-none">
+                                  {renderMarkdown(message.answer)}
+                                </div>
                               )}
                             </div>
                           </div>
@@ -1071,7 +1284,9 @@ const CourseContentPage = () => {
               )}
             </div>
 
-            <div className={`${isChatExpanded ? "p-6 border-t bg-white/95" : ""}`}>
+            <div
+              className={`${isChatExpanded ? "p-6 border-t bg-white/95" : ""}`}
+            >
               <div className="relative">
                 <div className="gradient-border">
                   <div className="gradient-border-inner">
@@ -1084,7 +1299,9 @@ const CourseContentPage = () => {
                         className="flex-1 px-4 py-3 text-sm focus:outline-none bg-transparent"
                         value={chatQuestion}
                         onChange={(e) => setChatQuestion(e.target.value)}
-                        onKeyPress={(e) => e.key === "Enter" && handleAskQuestion(e)}
+                        onKeyPress={(e) =>
+                          e.key === "Enter" && handleAskQuestion(e)
+                        }
                         disabled={isLoading}
                       />
                       <button
@@ -1098,24 +1315,26 @@ const CourseContentPage = () => {
                   </div>
                 </div>
                 <p className="text-xs text-slate-500 mt-2 text-center">
-                  Press Enter to send • AI can make mistakes, verify important information
+                  Press Enter to send • AI can make mistakes, verify important
+                  information
                 </p>
               </div>
             </div>
           </div>
         </section>
-        {url &&
-          <FloatingVideoPlayer uri={url} />
-
-        }
+        {url && <FloatingVideoPlayer uri={url} />}
         {/* Upload Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-3xl p-8 w-full max-w-2xl shadow-2xl transform transition-all">
               <div className="flex justify-between items-center mb-8 pb-6 border-b border-slate-200">
                 <div>
-                  <h2 className="text-3xl font-bold text-slate-800">Create New Content</h2>
-                  <p className="text-slate-600 mt-1">Upload and organize your teaching materials</p>
+                  <h2 className="text-3xl font-bold text-slate-800">
+                    Create New Content
+                  </h2>
+                  <p className="text-slate-600 mt-1">
+                    Upload and organize your teaching materials
+                  </p>
                 </div>
                 <button
                   onClick={() => setShowModal(false)}
@@ -1136,7 +1355,9 @@ const CourseContentPage = () => {
                       type="text"
                       required
                       value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
                       className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all disabled:opacity-50"
                       placeholder="e.g., Advanced React Patterns and Best Practices"
                       disabled={isUploadLoading}
@@ -1150,7 +1371,9 @@ const CourseContentPage = () => {
                     <select
                       required
                       value={formData.type}
-                      onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, type: e.target.value })
+                      }
                       className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-all disabled:opacity-50"
                       disabled={isUploadLoading}
                     >
@@ -1168,25 +1391,43 @@ const CourseContentPage = () => {
                       Upload File <span className="text-red-500">*</span>
                     </label>
                     <div
-                      className={`border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:border-blue-400 transition-colors bg-slate-50 ${isUploadLoading ? "opacity-50" : ""
-                        }`}
+                      className={`border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:border-blue-400 transition-colors bg-slate-50 ${
+                        isUploadLoading ? "opacity-50" : ""
+                      }`}
                     >
                       <div className="space-y-4">
                         <div className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center">
                           {isUploadLoading ? (
-                            <LoadingSpinner size={24} className="text-blue-600" />
+                            <LoadingSpinner
+                              size={24}
+                              className="text-blue-600"
+                            />
                           ) : (
                             <FaPlus className="text-blue-600" size={24} />
                           )}
                         </div>
                         <div>
-                          <label className={`cursor-pointer ${isUploadLoading ? "pointer-events-none" : ""}`}>
-                            <span className="text-blue-600 hover:text-blue-700 font-semibold">Choose file</span>
-                            <span className="text-slate-600"> or drag and drop</span>
+                          <label
+                            className={`cursor-pointer ${
+                              isUploadLoading ? "pointer-events-none" : ""
+                            }`}
+                          >
+                            <span className="text-blue-600 hover:text-blue-700 font-semibold">
+                              Choose file
+                            </span>
+                            <span className="text-slate-600">
+                              {" "}
+                              or drag and drop
+                            </span>
                             <input
                               type="file"
                               required
-                              onChange={(e) => setFormData({ ...formData, file: e.target.files[0] })}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  file: e.target.files[0],
+                                })
+                              }
                               className="hidden"
                               disabled={isUploadLoading}
                             />
@@ -1194,11 +1435,15 @@ const CourseContentPage = () => {
                         </div>
                         <p className="text-sm text-slate-500">
                           {formData.type === "pdf" && "PDF files up to 25MB"}
-                          {formData.type === "video" && "MP4, AVI, MOV, MKV files up to 500MB"}
-                          {formData.type === "quiz" && "DOCX, PDF, XLSX files up to 10MB"}
+                          {formData.type === "video" &&
+                            "MP4, AVI, MOV, MKV files up to 500MB"}
+                          {formData.type === "quiz" &&
+                            "DOCX, PDF, XLSX files up to 10MB"}
                           {formData.type === "pptx" && "PPTX files up to 50MB"}
-                          {formData.type === "docx" && "DOC, DOCX files up to 10MB"}
-                          {!formData.type && "Select content type to see file requirements"}
+                          {formData.type === "docx" &&
+                            "DOC, DOCX files up to 10MB"}
+                          {!formData.type &&
+                            "Select content type to see file requirements"}
                         </p>
                         {formData.file && (
                           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
@@ -1210,7 +1455,10 @@ const CourseContentPage = () => {
                         {isUploadLoading && (
                           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                             <div className="flex items-center gap-2">
-                              <LoadingSpinner size={16} className="text-blue-600" />
+                              <LoadingSpinner
+                                size={16}
+                                className="text-blue-600"
+                              />
                               <p className="text-sm text-blue-800 font-medium">
                                 Uploading content... Please wait.
                               </p>
@@ -1232,7 +1480,12 @@ const CourseContentPage = () => {
                     </button>
                     <button
                       type="submit"
-                      disabled={isUploadLoading || !formData.title || !formData.type || !formData.file}
+                      disabled={
+                        isUploadLoading ||
+                        !formData.title ||
+                        !formData.type ||
+                        !formData.file
+                      }
                       className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl flex items-center gap-2 font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isUploadLoading ? (

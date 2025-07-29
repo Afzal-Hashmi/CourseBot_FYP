@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  FaCog,
-  FaSearch,
-  FaUserTie,
-  FaPlus,
-} from "react-icons/fa";
+import { FaCog, FaSearch, FaUserTie, FaPlus } from "react-icons/fa";
 import StudentSidebar from "./student_sidebar";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
@@ -59,7 +54,6 @@ const StudentDashboard = () => {
       fetchCourses();
     }
   }, [navigate]);
-
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -192,7 +186,7 @@ const StudentDashboard = () => {
                     </option>
                   ))}
                 </select>
-                <select
+                {/* <select
                   value={selectedRating}
                   onChange={(e) => setSelectedRating(e.target.value)}
                   className="px-4 sm:px-6 py-2 text-sm sm:text-base font-semibold rounded-xl shadow-md bg-white text-gray-800 border border-gray-200 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
@@ -203,7 +197,7 @@ const StudentDashboard = () => {
                       {rating === "All" ? "All Ratings" : `${rating} Stars`}
                     </option>
                   ))}
-                </select>
+                </select> */}
               </div>
             </div>
 
@@ -255,10 +249,11 @@ const StudentDashboard = () => {
                       </span>
                     </div>
                     <button
-                      className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base shadow-md hover:from-blue-700 hover:to-indigo-700 hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 ${enrolling[course.course_id]
+                      className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base shadow-md hover:from-blue-700 hover:to-indigo-700 hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 ${
+                        enrolling[course.course_id]
                           ? "opacity-50 cursor-not-allowed"
                           : ""
-                        }`}
+                      }`}
                       onClick={(event) =>
                         handleEnrollClick(event, course.course_id)
                       }
