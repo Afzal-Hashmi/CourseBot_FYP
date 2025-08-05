@@ -412,7 +412,6 @@ class TeacherService:
                 res = conn.getresponse()
                 vectara_response = res.read()
 
-            # ✅ Final check on Vectara response
             if res.status == 201:
                 return {
                     "succeeded": True,
